@@ -1,0 +1,55 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Rule: Code Critics - Technical Standards
+
+This document defines the technical standards, conventions, and best practices for the Code Critics project. It is a synthesis of best practices relevant to our tech stack.
+
+---
+
+### 1. General Code Quality & Clean Code
+
+- **Meaningful names**: Variables, functions, and classes must reveal their purpose. Avoid non-standard abbreviations.
+- **Single responsibility principle**: Every function, class, or module should have one, and only one, reason to change. Keep them small and focused.
+- **DRY (Don't Repeat Yourself)**: Abstract and reuse common logic to maintain a single source of truth.
+- **Smart comments**: Do not comment on *what* the code does; the code should be self-explanatory. Use comments only to explain *why* a particular implementation was chosen for complex or non-obvious reasons.
+- **Refactoring**: Leave code cleaner than you found it. Continuously refactor to improve structure and readability.
+
+---
+
+### 2. TypeScript Best Practices
+
+- **Strict mode**: `tsconfig.json` MUST be configured with `strict: true`.
+- **Typing**:
+  - Avoid `any`. Use `unknown` when a type is genuinely unknown and perform type checking.
+  - Prefer `interface` for defining the shape of objects.
+  - Use `type` for creating unions, intersections, or other complex types.
+  - Use explicit return types for all public and complex functions to ensure clarity.
+- **Naming**:
+  - `PascalCase` for types, interfaces, and enums (e.g., `WebhookPayload`).
+  - `camelCase` for variables and functions (e.g., `handlePullRequest`).
+- **Organization**: Keep type definitions close to their usage. For globally shared types, use a dedicated `/src/types` directory.
+
+---
+
+### 3. Node.js & Express API Development
+
+- **Async operations**: **MUST** use `async/await` for all asynchronous code. All promises must be properly handled, including rejections.
+- **Error handling**: Implement a centralized error-handling middleware. Create custom error classes for specific, predictable error states (e.g., `ApiError`, `ValidationError`).
+- **Configuration**: All configuration and secrets (API keys, tokens) **MUST** be loaded from environment variables via `dotenv`. Do not hard-code them.
+- **Security**:
+  - Implement webhook signature verification for all incoming GitHub webhooks.
+  - Use security-focused middleware like `helmet` to set appropriate HTTP headers.
+  - Implement rate limiting to prevent abuse.
+
+---
+
+### 4. AI & Agent-Specific Rules
+
+- **No apologies or excuses**: Do not apologize. Explain the situation and the plan.
+- **Verify, don't assume**: If context is missing or ambiguous, ask for clarification by creating a `question.md` file as per `project.mdc`.
+- **Preserve existing code**: Do not remove or refactor unrelated code. Changes should be focused on the specific task.
+- **File-by-file changes**: When making multiple edits, propose changes for one file at a time to allow for clear review.
+

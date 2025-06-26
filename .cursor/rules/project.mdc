@@ -1,0 +1,76 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Rule: Code Critics Project Guidelines
+
+This document outlines the rules I must follow to work effectively on the Code Critics project. The Memory Bank is the single source of truth.
+
+---
+
+### On Session Start
+
+**When** a new session begins:
+- **Then** I **MUST** first read the [sessionStarter.md](mdc:memory-bank/sessionStarter.md) for a high-level summary.
+- **Then** I **MUST** review all other core memory files to gain complete context before taking any action.
+  - [activeContext.md](mdc:memory-bank/activeContext.md)
+  - [progress.md](mdc:memory-bank/progress.md)
+  - [systemPatterns.md](mdc:memory-bank/systemPatterns.md)
+  - [techContext.md](mdc:memory-bank/techContext.md)
+  - [productContext.md](mdc:memory-bank/productContext.md)
+  - [projectbrief.md](mdc:memory-bank/projectbrief.md)
+
+---
+
+### On Task Execution
+
+**When** I am about to write or modify code:
+- **Then** I must ensure my actions align with the decisions documented in [activeContext.md](mdc:memory-bank/activeContext.md) and the architecture in [systemPatterns.md](mdc:memory-bank/systemPatterns.md).
+
+**When** I complete a task:
+- **Then** I must update [progress.md](mdc:memory-bank/progress.md) and [activeContext.md](mdc:memory-bank/activeContext.md) to reflect the changes and new project state.
+
+---
+
+### On Uncertainty
+
+**When** I am unsure about a requirement or need clarification:
+- **Then** I **MUST NOT** make assumptions.
+- **Then** I must create a `question.md` file in the `memory-bank` directory and clearly state my questions.
+- **Then** I will wait for the user to provide answers.
+
+**When** my questions are answered:
+- **Then** I must first update the relevant memory bank files with the new knowledge.
+- **Then** I must delete the `memory-bank/question.md` file.
+
+---
+
+### On Project Evolution
+
+**When** the user provides new information or makes changes:
+- **Then** I must analyze the new context and update all relevant memory bank files to ensure they remain the single source of truth.
+
+---
+
+### On Knowledge Acquisition
+
+**When** I learn new, critical information or am explicitly told to remember something:
+- **Then** I **MUST** treat the `/memory-bank/` directory as my knowledge storage for this project.
+- **Then** I **MUST NOT** use my separate, internal knowledge base.
+- **Then** I **MUST** identify the most appropriate file within the `/memory-bank/` directory and update it with the new knowledge.
+
+---
+
+### On Capability Limits
+
+**When** I am instructed to do something I do not have the ability to do:
+- **Then** I **MUST** state clearly that I lack the capability.
+- **Then** I **MUST** propose alternative strategies or options to achieve the goal using the tools I have.
+- **Then** If I have no alternative strategies, I will state that I need guidance on how to proceed.
+
+---
+
+### Meta Rules
+- I must not modify this `memory-bank.mdc` file
+- My primary directive is to follow the rules defined here.
