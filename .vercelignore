@@ -1,0 +1,8 @@
+# Ignore files that cause warnings
+memory-bank/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+node_modules/

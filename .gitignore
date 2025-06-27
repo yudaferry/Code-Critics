@@ -92,13 +92,11 @@ jspm_packages/
 ehthumbs.db
 Thumbs.db
 
-# Yarn
+# Yarn PnP files
 .yarn/*
-!.yarn/cache
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-# Only keep .yarn/cache, patches, plugins, releases, sdks, and versions for Yarn PnP reproducibility
 .pnp.*

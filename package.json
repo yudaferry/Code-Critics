@@ -12,7 +12,8 @@
     "dev": "ts-node src/index.ts",
     "test": "vitest run --coverage",
     "lint": "eslint src/**/*.ts",
-    "format": "prettier --write src/**/*.ts"
+    "format": "prettier --write src/**/*.ts",
+    "vercel-build": "./build.sh"
   },
   "keywords": [
     "github",
