@@ -6,32 +6,32 @@ A GitHub code review app built with Node.js and TypeScript for automated code an
 
 1. **Install dependencies**
    ```bash
-   pnpm install
+   yarn install
    ```
 
 2. **Set up environment**
    ```bash
-   cp .env.example .env
+   cp env.example .env
    # Edit .env with your GitHub Personal Access Token and AI API keys
    ```
 
 3. **Build and run**
    ```bash
-   pnpm run build
-   pnpm start
+   yarn build
+   yarn start
    ```
 
 ## 📋 Development Status
 
-This project is currently in **Phase 1: Project Setup**
+This project is currently in **Phase 2: GitHub Integration (Ready to Start)**
 
 Check `memory-bank/progress.md` for detailed progress tracking.
 
 ## 🛠️ Tech Stack
 
-- **Runtime**: Node.js
+- **Runtime**: Node.js 22.x
 - **Language**: TypeScript
-- **Package Manager**: pnpm
+- **Package Manager**: Yarn (v4+, managed by Corepack)
 - **GitHub API**: @octokit/rest
 - **Webhooks**: @octokit/webhooks
 - **Server**: Express.js
@@ -41,23 +41,24 @@ Check `memory-bank/progress.md` for detailed progress tracking.
 
 ```
 code-critics/
-├── src/                 # Source code
+├── src/                 # Source code (ready for development)
 ├── dist/               # Compiled JavaScript
 ├── memory-bank/        # Project documentation
 │   └── progress.md    # Development progress
 ├── package.json
+├── yarn.lock
 ├── tsconfig.json
-└── .env.example
+└── env.example
 ```
 
 ## 🔧 Available Scripts
 
-- `pnpm run dev` - Run in development mode
-- `pnpm run build` - Build TypeScript to JavaScript
-- `pnpm start` - Run compiled application
-- `pnpm test` - Run tests
-- `pnpm run lint` - Lint code
-- `pnpm run format` - Format code
+- `yarn dev` - Run in development mode
+- `yarn build` - Build TypeScript to JavaScript
+- `yarn start` - Run compiled application
+- `yarn test` - Run tests
+- `yarn lint` - Lint code
+- `yarn format` - Format code
 
 ## 📝 License
 

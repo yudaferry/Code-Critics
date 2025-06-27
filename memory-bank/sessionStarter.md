@@ -4,38 +4,39 @@
 Code Critics is a personal AI-powered GitHub code review application. It automatically analyzes pull requests using Gemini/DeepSeek AI models and posts intelligent feedback as GitHub comments.
 
 ## 📋 **Current Status**
-- **Phase**: Project Setup (Phase 1) - 95% Complete
-- **Next Phase**: GitHub Integration (Phase 2)
-- **Architecture**: Webhook-driven, stateless, Vercel serverless deployment
-- **Development**: Multi-session spare-time project
+- **Current Phase**: 🟨 **Phase 2 - GitHub Integration (Ready to Start)**
+- **Next Step**: Begin coding the webhook server
+- **Full Details**: See `activeContext.md` for current work focus and `progress.md` for complete roadmap
 
 ## 🔧 **Technical Stack**
 - **Runtime**: Node.js 22.x + TypeScript
-- **Package Manager**: pnpm
+- **Package Manager**: Yarn (v4+, managed by Corepack)
 - **Server**: Express.js webhook endpoint
 - **AI Models**: Gemini (primary), DeepSeek (secondary)
 - **GitHub API**: @octokit/rest, @octokit/webhooks
-- **HTTP Client**: axios
 - **Deployment**: Vercel serverless functions
+- **Full Details**: See `techContext.md` for detailed explanations and reasoning
 
 ## 📁 **Project Structure**
 ```
 code-critics/
+├── .yarn/                  # Yarn installation and configuration
 ├── src/                    # Source code (empty - ready for development)
 ├── dist/                   # Compiled JavaScript
 ├── memory-bank/            # Complete project documentation
-├── package.json            # Dependencies configured
+├── package.json            # Dependencies and project metadata
+├── yarn.lock               # Yarn lock file
+├── shell.nix               # Nix development environment
 ├── tsconfig.json           # TypeScript configuration
+├── vitest.config.ts        # Vitest testing configuration
 ├── vercel.json             # Deployment configuration
 ├── .env                    # Environment variables (with API keys)
-├── .env.example            # Environment template
-└── .gitignore              # Security configured
+├── env.example             # Environment template
+└── .gitignore              # Git ignore rules
 ```
 
 ## 🚀 **Immediate Next Steps**
-1. **Install dependencies**: `pnpm install`
-2. **Update .env**: Add actual GitHub Personal Access Token
-3. **Begin Phase 2**: Create basic webhook server structure
+1. **Begin Phase 2**: Start development of the GitHub API client and webhook server.
 
 ## 🧠 **Key Decisions Made**
 - **AI Strategy**: No fallback between models - return error if primary fails
@@ -44,6 +45,7 @@ code-critics/
 - **Configuration**: Per-repository via GitHub variables/secrets
 - **Triggers**: Automatic on PR events + manual via `@codecritics` comment
 - **Architecture**: Stateless, event-driven, cold start delays acceptable
+- **Full Details**: See `activeContext.md` for complete decision context
 
 ## 📚 **Memory Bank Files**
 - `projectbrief.md` - Core project purpose and goals
@@ -56,9 +58,12 @@ code-critics/
 ## 🔑 **Environment Variables**
 ```bash
 GITHUB_TOKEN=your_personal_access_token_here
+WEBHOOK_SECRET=your_webhook_secret_here
 GEMINI_API_KEY=${GEMINI_API_KEY}  # From OS environment
 DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}  # From OS environment
+PORT=3000  # Optional, defaults to 3000
 ```
+*See `env.example` for template and `techContext.md` for authentication details*
 
 ## 💡 **Development Notes**
 - Each session should start by reading ALL memory bank files

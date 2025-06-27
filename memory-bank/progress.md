@@ -1,43 +1,48 @@
-# Progress: Code Critics
+# Project Progress & Roadmap
 
-This document tracks the high-level progress of the project through its key development phases.
+This document is the single source of truth for the project's phases and overall progress.
 
-## Current Status: 🟨 Phase 1 (95% Complete)
-- **Phase 1: Project Setup**
-  - [x] Initialize Node.js project with TypeScript
-  - [x] Configure TypeScript compilation
-  - [x] Create project structure
-  - [x] Establish and refine Memory Bank documentation
-  - [x] Configure Node.js 22 + pnpm environment
-  - [x] Set up all configuration files (package.json, tsconfig.json, vercel.json)
-  - [x] Create environment files (.env, .env.example)
-  - [x] Configure security (.gitignore)
-  - [x] Add all required dependencies (AI clients, GitHub API, HTTP client)
-  - [ ] Install dependencies (`pnpm install`)
-  - [ ] Update .env with actual GitHub Personal Access Token
+---
 
-## Upcoming Phases
-- **Phase 2: GitHub Integration**
-  - [ ] Set up GitHub API client with Octokit
-  - [ ] Implement authentication
-  - [ ] Create webhook endpoint to handle `pull_request` and `issue_comment` events
-  - [ ] Implement webhook signature verification
+## Project Phases & Tasks
 
-- **Phase 3: Core AI Review Logic**
-  - [ ] Design and implement a configurable AI client for Gemini and DeepSeek
-  - [ ] Develop and refine prompt to focus on critical bugs and security
-  - [ ] Implement logic to fetch PR diffs and interact with the AI API
-  - [ ] Create the review engine to post inline and summary comments
+### 🟩 Phase 1: Project Setup & Foundation (Complete)
+- [x] Initialize project with TypeScript and Git
+- [x] Establish and refine the Memory Bank documentation structure
+- [x] Create a reproducible development environment using `shell.nix`
+- [x] Resolve dependency installation issues by migrating from `pnpm` to `yarn`
+- [x] Successfully install all dependencies using `yarn`
+- [x] Set up environment variables (.env file for GITHUB_TOKEN, AI_API_KEY)
 
-- **Phase 4: Testing & Deployment**
-  - [ ] Write unit and integration tests
-  - [ ] Set up CI/CD pipeline for Vercel
-  - [ ] Deploy to production
+### 🟨 Phase 2: GitHub Integration (Ready to Start)
+- [ ] Create the basic directory structure inside `/src`
+- [ ] Set up a basic Express server to act as the webhook entry point
+- [ ] Implement the Octokit client for GitHub API communication
+- [ ] Implement webhook signature verification for security
+- [ ] Handle `pull_request` and `issue_comment` events
+- [ ] Test basic GitHub API connectivity
 
-- **Phase 5: Advanced Features & Maintenance**
-  - [ ] Implement per-repository configuration
-  - [ ] Set up logging and monitoring
-  - [ ] Plan for rate limit handling
+### ⬜️ Phase 3: Core AI Review Logic (Not Started)
+- [ ] Design and implement a configurable AI client for Gemini and DeepSeek
+- [ ] Develop and refine a system prompt focused on critical bugs and security
+- [ ] Implement logic to fetch PR diffs and interact with the AI API
+- [ ] Create the review engine to post inline and summary comments to GitHub
+- [ ] Function to parse AI response and integrate feedback
+- [ ] Implement review status reporting (pending, success, failure)
+
+### ⬜️ Phase 4: Testing & Deployment (Not Started)
+- [ ] Write unit and integration tests for core logic and API interactions
+- [ ] Set up a CI/CD pipeline for automated testing and deployment
+- [ ] Deploy the application to Vercel
+- [ ] Monitor and optimize performance
+
+### ⬜️ Phase 5: Advanced Features & Maintenance (Not Started)
+- [ ] Implement per-repository configuration
+- [ ] Set up logging and monitoring for the deployed service
+- [ ] Plan and implement rate limit handling strategies
+- [ ] Add configurable review rules to guide AI
+- [ ] Allow switching between different AI models via configuration
+- [ ] Create comprehensive documentation and user guides
 
 ## What Works
 - **Project Foundation**: Complete memory bank documentation structure established
@@ -46,54 +51,10 @@ This document tracks the high-level progress of the project through its key deve
 - **Development Plan**: Phased approach with clear milestones and success metrics
 - **Project Structure**: Node.js project initialized with TypeScript configuration
 
-## What's Left to Build
-
-### Phase 1 (Current): Project Setup
-- [ ] Install dependencies (`pnpm install`)
-- [ ] Set up environment variables (.env file for GITHUB_TOKEN, AI_API_KEY)
-
-### Phase 2: GitHub Integration
-- [ ] Set up GitHub API client with Octokit
-- [ ] Implement authentication with Personal Access Token
-- [ ] Test basic GitHub API connectivity
-- [ ] Create webhook endpoint for GitHub events
-- [ ] Implement webhook signature verification
-- [ ] Handle pull request events
-- [ ] Handle issue comment events (for `@codecritics` trigger)
-
-### Phase 3: Core AI Review Logic
-- [ ] Design AI interaction framework with a configurable client (Gemini/DeepSeek)
-- [ ] Develop initial prompt focused on finding critical bugs and security vulnerabilities
-- [ ] Implement AI API client (for Gemini/DeepSeek)
-- [ ] Function to fetch and prepare entire PR diff for the AI
-- [ ] Function to parse AI response
-- [ ] Integrate AI feedback into review comment system
-- [ ] Implement review status reporting (pending, success, failure)
-
-### Phase 4: Advanced Features
-- [ ] Add configurable review rules to guide AI
-- [ ] Allow switching between different AI models (Gemini/DeepSeek) via configuration
-- [ ] Create review summary reports from AI feedback
-- [ ] Add ignore patterns and exceptions
-
-### Phase 5: Testing & Deployment
-- [ ] Write unit tests for core functions
-- [ ] Write integration tests for GitHub API
-- [ ] Set up CI/CD pipeline
-- [ ] Deploy to production environment
-- [ ] Monitor and optimize performance
-
-### Phase 6: Documentation & Maintenance
-- [ ] Write comprehensive README
-- [ ] Create API documentation
-- [ ] Set up logging and monitoring
-- [ ] Plan for rate limit handling
-- [ ] Create user configuration guide
-
 ## Current Status
-- **Overall Progress**: 15% (Foundation, planning, and project structure complete)
-- **Current Phase**: Phase 1 (Project Setup)
-- **Next Milestone**: Complete environment setup and dependency installation
+- **Overall Progress**: 20% (Foundation complete, ready to start Phase 2)
+- **Current Phase**: Phase 2 (GitHub Integration) - Ready to Start
+- **Next Milestone**: Create basic webhook server and GitHub API client
 - **Blockers**: None
 
 ## Known Issues
