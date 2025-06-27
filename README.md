@@ -63,3 +63,15 @@ code-critics/
 ## 📝 License
 
 MIT
+
+## Deploying to Vercel
+
+1. Ensure your Express app is exported from `src/index.ts` (already set up).
+2. The Vercel entry point is `api/index.ts`.
+3. The `vercel.json` routes all requests to the API handler.
+4. Push your code to GitHub.
+5. In the Vercel dashboard:
+   - Import your repository.
+   - Set required environment variables (e.g., `GITHUB_TOKEN`, `WEBHOOK_SECRET`, etc.).
+   - Deploy the project.
+6. Test your deployment at the provided Vercel URL (e.g., `/health`).

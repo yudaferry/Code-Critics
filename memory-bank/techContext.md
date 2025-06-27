@@ -63,3 +63,73 @@
 - **Environment**: Production secrets managed via Vercel environment variables
 - **Local Development**: Uses Cloudflare Tunnel for webhook testing
 - **Cold Start**: 1-3 second delays acceptable for personal use case 
+
+## 8. Technology Workflow Diagram
+
+```mermaid
+graph TD
+    A[GitHub PR Event] --> B[GitHub Webhook]
+    C[User Comment @codecritics] --> B
+    
+    B --> D[Express.js Server Port 3000]
+    D --> E[Webhook Signature Verification @octokit/webhooks]
+    
+    E --> F{Event Router}
+    F -->|pull_request| G[PR Event Handler]
+    F -->|issue_comment| H[Comment Event Handler]
+    
+    G --> I[GitHub API Client @octokit/rest]
+    H --> I
+    I --> J[Fetch PR Diff & Metadata]
+    
+    J --> K{AI Service Router}
+    K -->|Primary| L[Gemini API @google/generative-ai]
+    K -->|Secondary| M[DeepSeek API axios HTTP client]
+    
+    L --> N[AI Response Parser]
+    M --> N
+    N --> O[Review Comment Formatter]
+    
+    O --> P[Post Comments via Octokit @octokit/rest]
+    P --> Q[GitHub PR Comments]
+    
+    R[Environment Variables dotenv] --> D
+    R --> I
+    R --> L
+    R --> M
+```
+
+### Technology Positioning:
+
+**🟢 Express.js**: 
+- **Position**: Entry point and web server framework
+- **Role**: Receives webhooks, routes requests, handles HTTP layer
+
+**🔵 @octokit/rest**: 
+- **Position**: GitHub API communication layer
+- **Role**: Fetches PR data, posts review comments back to GitHub
+
+**🔵 @octokit/webhooks**: 
+- **Position**: Security and event validation layer
+- **Role**: Verifies webhook signatures, parses GitHub events
+
+**🟠 @google/generative-ai**: 
+- **Position**: Primary AI processing layer
+- **Role**: Analyzes code diffs, generates review feedback
+
+**🔴 axios**: 
+- **Position**: Secondary AI HTTP client
+- **Role**: Makes HTTP requests to DeepSeek API (backup AI service)
+
+**🟣 dotenv**: 
+- **Position**: Configuration layer
+- **Role**: Loads environment variables (tokens, API keys, secrets)
+
+## 9. Editor Integration
+- When using Yarn Plug'n'Play (PnP), editors like VS Code or Cursor may not recognize dependencies by default.
+- To enable TypeScript and ESLint support, run:
+  ```
+  yarn dlx @yarnpkg/sdks vscode
+  ```
+- This generates SDK files for the editor, resolving 'Cannot find module' errors in TypeScript and ESLint.
+- Reload the editor after running the command. 
