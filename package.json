@@ -13,7 +13,7 @@
     "test": "vitest run --coverage",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
-    "vercel-build": "./build.sh"
+    "vercel-build": "yarn build"
   },
   "keywords": [
     "github",
