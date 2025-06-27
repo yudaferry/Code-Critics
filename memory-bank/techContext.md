@@ -21,49 +21,16 @@
   - **Purpose**: To load environment variables from a `.env` file into `process.env`, which is standard practice for managing configuration and secrets in development.
 
 ## 3. Development Environment
-
-### **Nix-Shell Encapsulation Strategy**
-- **Philosophy**: Complete OS isolation - ALL project dependencies are encapsulated within nix-shell
-- **Goal**: Keep the host OS completely clean from project-specific tools and dependencies
-- **Environment Management**: Nix Shell (`shell.nix`)
-  - **Purpose**: Provides a reproducible, isolated development environment
-  - **Includes**: Node.js 22.x, Yarn Berry (v4+)
-  - **Isolation**: No global installations required on host system
-
-### **Package Management (Encapsulated)**
-- **Package Manager**: Yarn (v4+, via Corepack in nix-shell)
-  - **Purpose**: Manage project dependencies within the isolated environment
-  - **Version**: Pinned in `package.json` (`"packageManager": "yarn@4.9.2"`)
-  - **Access**: All tools accessed via `yarn <command>` within nix-shell
-
-### **Development Tools (All Encapsulated)**
-- **Vercel CLI**: Installed as dev dependency (`vercel@44.2.7`)
-  - **Access**: `yarn vercel <command>` (never installed globally)
-  - **Purpose**: Deployment and local development server
-- **TypeScript**: Project dependency, accessed via `yarn tsc`
-- **Testing**: Vitest via `yarn test`
-- **Linting**: ESLint via `yarn lint`
-- **Formatting**: Prettier via `yarn format`
-- **Local Development**: `yarn dev` for ts-node execution
-
-### **Webhook Testing (Future Encapsulation)**
+- **Environment Management**: Nix Flakes (`shell.nix`)
+  - **Purpose**: To provide a reproducible development environment with specific versions of Node.js and Corepack.
+- **Package Manager**: Yarn (v4+, via Corepack)
+  - **Purpose**: To manage project dependencies. The version is pinned in `package.json`.
 - **Local Webhook Tunneling**: Cloudflare Tunnel (`cloudflared`)
-  - **Current**: May need global installation
-  - **Future Goal**: Encapsulate in nix-shell if possible
-  - **Purpose**: Expose local development server for webhook testing
-
-### **Environment Activation**
-```bash
-# Enter isolated environment
-cd /home/yuda/project/code-critics
-nix-shell
-
-# All commands run within isolated environment
-yarn install
-yarn dev
-yarn vercel --version
-yarn build
-```
+  - **Purpose**: To expose the local development server to the internet for webhook testing.
+- **Code Formatting**: Prettier
+  - **Purpose**: To maintain a consistent code style across the project.
+- **Linting**: ESLint
+  - **Purpose**: To identify and fix common coding errors and enforce best practices.
 
 ## 4. Authentication
 - **GitHub**: Personal Access Token (PAT) stored in `.env` as `GITHUB_TOKEN`
@@ -93,16 +60,50 @@ yarn build
 
 ## 7. Deployment Configuration
 - **Platform**: Vercel serverless functions
-- **Vercel CLI**: Version 44.2.7 (installed as dev dependency)
-  - **Access**: `yarn vercel <command>` within nix-shell
-  - **Authentication**: `yarn vercel login`
-  - **Deployment**: `yarn vercel deploy`
-  - **Local Development**: `yarn vercel dev` for local serverless testing
 - **Environment**: Production secrets managed via Vercel environment variables
 - **Local Development**: Uses Cloudflare Tunnel for webhook testing
-- **Cold Start**: 1-3 second delays acceptable for personal use case 
+- **Cold Start**: 1-3 second delays acceptable for personal use case
 
-## 8. Technology Workflow Diagram
+## 8. Development Tools
+
+### Custom Vercel Tool
+- **Location**: `AI-tools/vercel.tool.sh`
+- **Purpose**: Provides easy access to deployment logs and production URLs for debugging and testing
+- **Environment**: Only executable within nix-shell environment for safety
+- **Commands**:
+  - `./AI-tools/vercel.tool.sh logs` - Get build and runtime logs from latest deployment
+  - `./AI-tools/vercel.tool.sh url` - Get production URL from latest deployment aliases
+  - `./AI-tools/vercel.tool.sh help` - Show detailed usage information
+
+### Tool Benefits for AI Development
+- **Decision Making**: Enables AI assistants to assess deployment status and debug issues
+- **Testing Support**: Provides correct URLs for webhook configuration and endpoint testing
+- **Real-time Debugging**: Access to live deployment logs for troubleshooting
+- **Automated Integration**: Can be used in testing scripts and CI/CD workflows
+
+### Usage Examples
+```bash
+# Get production URL for testing
+PROD_URL=$(./AI-tools/vercel.tool.sh url | grep "Main production URL" | cut -d' ' -f4)
+curl "$PROD_URL/health"
+
+# Debug webhook issues
+./AI-tools/vercel.tool.sh logs | grep -i "webhook\|error"
+
+# Monitor deployment status
+./AI-tools/vercel.tool.sh url && ./AI-tools/vercel.tool.sh logs | tail -20
+```
+
+## 9. Editor Integration
+- When using Yarn Plug'n'Play (PnP), editors like VS Code or Cursor may not recognize dependencies by default.
+- To enable TypeScript and ESLint support, run:
+  ```
+  yarn dlx @yarnpkg/sdks vscode
+  ```
+- This generates SDK files for the editor, resolving 'Cannot find module' errors in TypeScript and ESLint.
+- Reload the editor after running the command.
+
+## 10. Technology Workflow Diagram
 
 ```mermaid
 graph TD
@@ -135,39 +136,39 @@ graph TD
     R --> I
     R --> L
     R --> M
+    
+    S[Vercel Tool] --> T[Deployment Logs]
+    S --> U[Production URLs]
+    T --> V[AI Decision Making]
+    U --> V
 ```
 
 ### Technology Positioning:
 
-**🟢 Express.js**: 
+**Express.js**: 
 - **Position**: Entry point and web server framework
 - **Role**: Receives webhooks, routes requests, handles HTTP layer
 
-**🔵 @octokit/rest**: 
+**@octokit/rest**: 
 - **Position**: GitHub API communication layer
 - **Role**: Fetches PR data, posts review comments back to GitHub
 
-**🔵 @octokit/webhooks**: 
+**@octokit/webhooks**: 
 - **Position**: Security and event validation layer
 - **Role**: Verifies webhook signatures, parses GitHub events
 
-**🟠 @google/generative-ai**: 
+**@google/generative-ai**: 
 - **Position**: Primary AI processing layer
 - **Role**: Analyzes code diffs, generates review feedback
 
-**🔴 axios**: 
+**axios**: 
 - **Position**: Secondary AI HTTP client
 - **Role**: Makes HTTP requests to DeepSeek API (backup AI service)
 
-**🟣 dotenv**: 
+**dotenv**: 
 - **Position**: Configuration layer
 - **Role**: Loads environment variables (tokens, API keys, secrets)
 
-## 9. Editor Integration
-- When using Yarn Plug'n'Play (PnP), editors like VS Code or Cursor may not recognize dependencies by default.
-- To enable TypeScript and ESLint support, run:
-  ```
-  yarn dlx @yarnpkg/sdks vscode
-  ```
-- This generates SDK files for the editor, resolving 'Cannot find module' errors in TypeScript and ESLint.
-- Reload the editor after running the command. 
+**Vercel Tool**: 
+- **Position**: Development and debugging layer
+- **Role**: Provides deployment insights and testing support for AI-driven development
