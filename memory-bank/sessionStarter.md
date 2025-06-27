@@ -14,7 +14,8 @@ Code Critics is a personal AI-powered GitHub code review application. It automat
 - **Server**: Express.js webhook endpoint
 - **AI Models**: Gemini (primary), DeepSeek (secondary)
 - **GitHub API**: @octokit/rest, @octokit/webhooks
-- **Deployment**: Vercel serverless functions
+- **Deployment**: Vercel serverless functions (CLI v44.2.7)
+- **Environment**: Complete nix-shell encapsulation (OS isolation)
 - **Full Details**: See `techContext.md` for detailed explanations and reasoning
 
 ## 📁 **Project Structure**
@@ -54,6 +55,14 @@ code-critics/
 - `techContext.md` - Technologies, libraries, and deployment
 - `activeContext.md` - Current work focus and decisions
 - `progress.md` - Detailed task breakdown and status
+- `research_questions.md` - Strategic implementation decisions with recommendations
+- `research/` - **Complete technical research knowledge base**:
+  - `github-webhooks.md` - Webhook events, security, payload structures
+  - `octokit-patterns.md` - GitHub API integration patterns
+  - `ai-apis.md` - Gemini/DeepSeek integration and prompt engineering
+  - `serverless-deployment.md` - Vercel optimization and deployment
+  - `code-snippets.md` - Production-ready implementation examples
+  - `research-summary.md` - Research completion status and key findings
 
 ## 🔑 **Environment Variables**
 ```bash
@@ -71,6 +80,7 @@ PORT=3000  # Optional, defaults to 3000
 - Prompt engineering will be critical and iterative
 - Focus on MVP first, enhance incrementally
 - Local testing uses Cloudflare Tunnel for webhooks
+- **All development happens within nix-shell** - no global installations
 
 ## 🎯 **Success Criteria**
 - Analyze PRs and provide AI-driven feedback

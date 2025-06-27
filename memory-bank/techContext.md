@@ -21,16 +21,49 @@
   - **Purpose**: To load environment variables from a `.env` file into `process.env`, which is standard practice for managing configuration and secrets in development.
 
 ## 3. Development Environment
-- **Environment Management**: Nix Flakes (`shell.nix`)
-  - **Purpose**: To provide a reproducible development environment with specific versions of Node.js and Corepack.
-- **Package Manager**: Yarn (v4+, via Corepack)
-  - **Purpose**: To manage project dependencies. The version is pinned in `package.json`.
+
+### **Nix-Shell Encapsulation Strategy**
+- **Philosophy**: Complete OS isolation - ALL project dependencies are encapsulated within nix-shell
+- **Goal**: Keep the host OS completely clean from project-specific tools and dependencies
+- **Environment Management**: Nix Shell (`shell.nix`)
+  - **Purpose**: Provides a reproducible, isolated development environment
+  - **Includes**: Node.js 22.x, Yarn Berry (v4+)
+  - **Isolation**: No global installations required on host system
+
+### **Package Management (Encapsulated)**
+- **Package Manager**: Yarn (v4+, via Corepack in nix-shell)
+  - **Purpose**: Manage project dependencies within the isolated environment
+  - **Version**: Pinned in `package.json` (`"packageManager": "yarn@4.9.2"`)
+  - **Access**: All tools accessed via `yarn <command>` within nix-shell
+
+### **Development Tools (All Encapsulated)**
+- **Vercel CLI**: Installed as dev dependency (`vercel@44.2.7`)
+  - **Access**: `yarn vercel <command>` (never installed globally)
+  - **Purpose**: Deployment and local development server
+- **TypeScript**: Project dependency, accessed via `yarn tsc`
+- **Testing**: Vitest via `yarn test`
+- **Linting**: ESLint via `yarn lint`
+- **Formatting**: Prettier via `yarn format`
+- **Local Development**: `yarn dev` for ts-node execution
+
+### **Webhook Testing (Future Encapsulation)**
 - **Local Webhook Tunneling**: Cloudflare Tunnel (`cloudflared`)
-  - **Purpose**: To expose the local development server to the internet for webhook testing.
-- **Code Formatting**: Prettier
-  - **Purpose**: To maintain a consistent code style across the project.
-- **Linting**: ESLint
-  - **Purpose**: To identify and fix common coding errors and enforce best practices.
+  - **Current**: May need global installation
+  - **Future Goal**: Encapsulate in nix-shell if possible
+  - **Purpose**: Expose local development server for webhook testing
+
+### **Environment Activation**
+```bash
+# Enter isolated environment
+cd /home/yuda/project/code-critics
+nix-shell
+
+# All commands run within isolated environment
+yarn install
+yarn dev
+yarn vercel --version
+yarn build
+```
 
 ## 4. Authentication
 - **GitHub**: Personal Access Token (PAT) stored in `.env` as `GITHUB_TOKEN`
@@ -60,6 +93,11 @@
 
 ## 7. Deployment Configuration
 - **Platform**: Vercel serverless functions
+- **Vercel CLI**: Version 44.2.7 (installed as dev dependency)
+  - **Access**: `yarn vercel <command>` within nix-shell
+  - **Authentication**: `yarn vercel login`
+  - **Deployment**: `yarn vercel deploy`
+  - **Local Development**: `yarn vercel dev` for local serverless testing
 - **Environment**: Production secrets managed via Vercel environment variables
 - **Local Development**: Uses Cloudflare Tunnel for webhook testing
 - **Cold Start**: 1-3 second delays acceptable for personal use case 

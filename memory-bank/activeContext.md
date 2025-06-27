@@ -1,66 +1,98 @@
 # Active Context: Code Critics
 
 ## Current Work Focus
-**Current Phase**: 🟨 **Phase 2 - GitHub Integration (Ready to Start)**  
+**Current Phase**: Phase 2 - GitHub Integration (Nearly Complete)
 *(See `progress.md` for the full project roadmap.)*
 
-**Immediate Goal**: Build the foundational components for receiving and handling GitHub webhooks.
+**Immediate Goal**: Complete GitHub integration and test connectivity.
+
+**Completed Tasks**:
+1. ✅ Create the basic directory structure inside `/src`
+2. ✅ Implement a basic Express server as the webhook entry point
+3. ✅ Set up the Octokit client for GitHub API communication
+4. ✅ Implement webhook signature verification for security
+5. ✅ Handle `pull_request` and `issue_comment` events
 
 **Next Actions**:
-1. Create the basic directory structure inside `/src`
-2. Implement a basic Express server as the webhook entry point
-3. Set up the Octokit client for GitHub API communication
-4. Implement webhook signature verification for security
+6. 🔄 Test basic GitHub API connectivity (Task 2.6)
 
-## Recent Accomplishments (Completed Phase 1)
-- Migrated from `pnpm` to Yarn (v4+) managed by Corepack.
-- Established a reproducible development environment with `shell.nix`.
-- Successfully installed all project dependencies.
-- Refined the Memory Bank documentation structure.
-- Project is ready to begin Phase 2 implementation.
+## Recent Accomplishments (Tasks 2.3-2.5 Completed)
 
-## Key Decisions for Current Phase
-- The webhook server will listen for `pull_request` and `issue_comment` events.
-- All incoming webhooks must be validated using the webhook secret.
-- The Octokit client will be initialized with the `GITHUB_TOKEN`.
+### GitHub API Integration (Task 2.3)
+- **Complete Octokit Service**: Implemented comprehensive GitHub API client with authentication, rate limiting, and error handling
+- **PR Data Fetching**: Support for fetching PR details, diffs, and file changes with fallback strategies
+- **Comment Management**: Full support for inline comments, PR comments, and review creation
+- **Rate Limiting**: Built-in retry logic with exponential backoff for GitHub API rate limits
+- **Repository Security**: Allowlist support for restricting analysis to specific repositories
 
-## Active Decisions & Patterns
-**AI Integration Strategy**:
-- Gemini as primary model (free tier), DeepSeek as secondary (cheap)
-- API keys stored in OS environment: `GEMINI_API_KEY`, `DEEPSEEK_API_KEY`
-- No fallback between models - return error if primary fails
-- Entire PR diff sent to AI in single request for MVP
-- Focus strictly on critical bugs and security vulnerabilities
-- Manual trigger via `@codecritics` comment + automatic on PR events
+### Webhook Security (Task 2.4)
+- **HMAC-SHA256 Verification**: Secure webhook signature verification using timing-safe comparison
+- **Payload Validation**: Comprehensive validation of webhook payload structure and required fields
+- **Rate Limiting**: Per-repository rate limiting (10 requests/hour) with cleanup mechanisms
+- **Security Headers**: Proper error handling without exposing sensitive information
+- **Input Sanitization**: Validation of all incoming webhook data
 
-**GitHub Integration**:
-- Reusable GitHub Actions workflow for per-repository setup
-- Both inline comments and PR-level summary comments
-- Stateless operation - no review history retention
-- Configuration via GitHub repository variables/secrets
-- Personal Access Token authentication using `GITHUB_TOKEN`
+### Event Handling (Task 2.5)
+- **Pull Request Events**: Full support for `opened`, `synchronize`, and `reopened` events
+- **Comment Events**: Manual trigger support via `@codecritics` mentions in PR comments
+- **Smart Processing**: Event filtering to only process relevant events and avoid spam
+- **Duplicate Prevention**: Timestamp-based deduplication to avoid multiple reviews of same changes
+- **Error Recovery**: Comprehensive error handling with user-friendly error messages
 
-**Technical Patterns**:
-- **Nix-based Environment**: Using `shell.nix` to ensure consistent tooling.
-- Event-driven webhook architecture
-- Stateless service design
-- Vercel serverless deployment (cold start delays acceptable)
-- **Yarn via Corepack**: Using modern Yarn for dependency management, pinned per-project.
-- TypeScript for type safety
-- Axios for HTTP client (DeepSeek API calls)
-- Express.js for webhook server
+## Key Implementation Features
 
-**Development Approach**:
-- Multi-session development (spare time project)
-- Iterative prompt engineering
-- Start simple, enhance incrementally
-- Local development with Cloudflare Tunnel for webhook testing
-- Vercel deployment for production
+### Strategic Decisions Implemented
+Based on research question answers:
+- **AI Fallback Strategy**: Prepared for fallback to secondary provider with logging (Option B)
+- **Comment Deduplication**: Timestamp-based change detection to prevent spam (Option C)
+- **Rate Limiting**: Per-repository rate limiting for abuse protection (Option A)
+- **Error Reporting**: Different detail levels based on error type for security (Option C)
+- **Large PR Handling**: File type filtering for meaningful analysis (Option B)
+- **Repository Security**: Allowlist support for trusted repositories (Option B)
+
+### Technical Patterns Implemented
+- **Service Architecture**: Clean separation with GitHubService, webhook handlers, and utilities
+- **Structured Logging**: Comprehensive logging with context and error tracking
+- **Configuration Management**: Environment variable validation with sensible defaults
+- **Type Safety**: Complete TypeScript interfaces for all data structures
+- **Error Classification**: Proper HTTP status codes and user-friendly error messages
+
+### Security Features
+- **Webhook Signature Verification**: HMAC-SHA256 with timing-safe comparison
+- **Repository Allowlisting**: Optional restriction to specific repositories
+- **Rate Limiting**: Per-repository limits to prevent abuse
+- **Input Validation**: Comprehensive payload structure validation
+- **Error Handling**: Secure error messages without information leakage
 
 ## Current Considerations
-- Prompt engineering will be critical and iterative
-- Need flexible AI client interface for easy model switching
-- Rate limiting strategies for both GitHub and AI APIs
-- Error handling and retry logic for webhook reliability
-- Cold start delays (1-3 seconds) acceptable for personal use
-- Each AI session must be self-contained with complete context 
+- **Phase 3 Preparation**: GitHub integration is nearly complete, ready for AI service implementation
+- **Testing Strategy**: Need to test GitHub API connectivity and webhook processing
+- **Configuration**: Environment variables properly structured for deployment
+- **Documentation**: Implementation follows research findings and best practices
+- **Performance**: Optimized for Vercel serverless with proper error handling and retry logic
+
+## Active Decisions & Patterns
+**GitHub Integration**:
+- Comprehensive Octokit client with full error handling and rate limiting
+- Support for both automatic (PR events) and manual (`@codecritics` comment) triggers
+- Repository allowlisting for security and per-repository rate limiting
+- Smart deduplication to avoid review spam while allowing manual overrides
+
+**Technical Patterns**:
+- **Service-Oriented Architecture**: Clean separation of concerns with dedicated services
+- **Structured Logging**: Context-aware logging with request tracking
+- **Configuration Validation**: Environment variable validation with clear error messages
+- **Type Safety**: Complete TypeScript coverage for all interfaces and data structures
+- **Error Resilience**: Comprehensive error handling with appropriate HTTP status codes
+
+**Security Implementation**:
+- **Webhook Security**: HMAC-SHA256 signature verification with timing attack protection
+- **Rate Limiting**: Per-repository limits with cleanup mechanisms
+- **Input Validation**: Comprehensive payload validation and sanitization
+- **Repository Control**: Optional allowlisting for trusted repositories only
+
+**Development Approach**:
+- **Research-Driven**: Implementation based on comprehensive research findings
+- **Best Practices**: Following established patterns for webhook security and API integration
+- **Incremental Development**: Phased approach with clear milestones and testing
+- **Documentation**: Comprehensive logging and error messages for debugging
