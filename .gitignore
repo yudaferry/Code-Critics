@@ -100,3 +100,4 @@ Thumbs.db
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+.vercel
