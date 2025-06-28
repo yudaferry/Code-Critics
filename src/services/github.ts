@@ -29,7 +29,7 @@ export class GitHubService {
       this.logger.info('GitHub token validated', { user: data.login });
       return { login: data.login, id: data.id };
     } catch (error) {
-      this.logger.error('GitHub token validation failed', error);
+      this.logger.error('GitHub token validation failed', error as Error);
       throw new Error('Invalid GitHub token');
     }
   }
@@ -128,7 +128,7 @@ export class GitHubService {
         }))
       };
     } catch (error) {
-      this.logger.error('Failed to fetch pull request data', error);
+      this.logger.error('Failed to fetch pull request data', error as Error);
       throw error;
     }
   }
@@ -143,6 +143,13 @@ export class GitHubService {
     comment: ReviewComment
   ): Promise<void> {
     try {
+      // First get the latest commit SHA for the PR
+      const { data: pr } = await this.octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number: pullNumber
+      });
+      
       await this.octokit.rest.pulls.createReviewComment({
         owner,
         repo,
@@ -150,7 +157,8 @@ export class GitHubService {
         body: comment.body,
         path: comment.path,
         line: comment.line,
-        side: comment.side || 'RIGHT'
+        side: comment.side || 'RIGHT',
+        commit_id: pr.head.sha
       });
       
       this.logger.debug('Posted inline comment', {
@@ -158,7 +166,7 @@ export class GitHubService {
         line: comment.line
       });
     } catch (error) {
-      this.logger.error('Failed to post inline comment', error, {
+      this.logger.error('Failed to post inline comment', error as Error, {
         path: comment.path,
         line: comment.line
       });
@@ -185,7 +193,7 @@ export class GitHubService {
       
       this.logger.debug('Posted PR comment');
     } catch (error) {
-      this.logger.error('Failed to post PR comment', error);
+      this.logger.error('Failed to post PR comment', error as Error);
       throw error;
     }
   }
@@ -222,7 +230,7 @@ export class GitHubService {
         commentsCount: review.comments.length
       });
     } catch (error) {
-      this.logger.error('Failed to create review', error);
+      this.logger.error('Failed to create review', error as Error);
       throw error;
     }
   }
@@ -245,16 +253,16 @@ export class GitHubService {
       return comments
         .filter(comment => 
           comment.user?.login === 'code-critics[bot]' ||
-          comment.body.includes('<!-- code-critics-comment -->') ||
-          comment.body.includes('<!-- code-critics-review -->')
+          (comment.body?.includes('<!-- code-critics-comment -->') || false) ||
+          (comment.body?.includes('<!-- code-critics-review -->') || false)
         )
         .map(comment => ({
           id: comment.id,
-          body: comment.body,
+          body: comment.body || '',
           created_at: comment.created_at
         }));
     } catch (error) {
-      this.logger.error('Failed to fetch existing comments', error);
+      this.logger.error('Failed to fetch existing comments', error as Error);
       return [];
     }
   }
@@ -278,7 +286,7 @@ export class GitHubService {
         used: data.rate.used
       };
     } catch (error) {
-      this.logger.error('Failed to check rate limit', error);
+      this.logger.error('Failed to check rate limit', error as Error);
       throw error;
     }
   }

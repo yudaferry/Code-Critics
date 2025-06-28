@@ -100,8 +100,17 @@ curl "$PROD_URL/health"
   ```
   yarn dlx @yarnpkg/sdks vscode
   ```
-- This generates SDK files for the editor, resolving 'Cannot find module' errors in TypeScript and ESLint.
-- Reload the editor after running the command.
+- This generates SDK files in `.yarn/sdks/` for the editor, resolving 'Cannot find module' errors in TypeScript and ESLint.
+- The command creates/updates:
+  - `.vscode/settings.json` - Points the editor to use the SDK's TypeScript version
+  - `.vscode/extensions.json` - Recommends essential extensions (ZipFS, ESLint, Prettier)
+  - `.yarn/sdks/` - Contains TypeScript, ESLint, and Prettier SDKs for editor integration
+- Benefits:
+  - Resolves "Cannot find module" errors in the editor
+  - Ensures consistent TypeScript version between editor and build
+  - Enables proper type checking and IntelliSense
+  - Works with nix-shell environments
+- Reload the editor after running the command to apply changes.
 
 ## 10. Technology Workflow Diagram
 

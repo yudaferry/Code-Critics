@@ -71,4 +71,6 @@ This document is the single source of truth for the project's phases and overall
 - **AI-First Approach**: Shifted from traditional static analysis to AI-powered review
 - **Configurable AI Backend**: Support for both Gemini (default) and DeepSeek
 - **Webhook Architecture**: Event-driven design for real-time PR analysis
-- **Personal Use Focus**: Optimized for individual developer workflow 
+- **Personal Use Focus**: Optimized for individual developer workflow
+- **TypeScript Upgrade**: Updated from TypeScript 4.9.5 to 5.8.3 for better editor support and modern features
+- **Editor Integration**: Implemented Yarn SDK for VS Code/Cursor to resolve dependency resolution issues

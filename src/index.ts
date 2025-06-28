@@ -12,7 +12,7 @@ const logger = new Logger();
 app.use(express.json({ limit: '10mb' }));
 
 // Health check endpoint with service validation
-app.get('/health', async (_req: Request, res: Response) => {
+app.get('/health', async (_req, res) => {
   const startTime = Date.now();
   
   try {
@@ -21,10 +21,11 @@ app.get('/health', async (_req: Request, res: Response) => {
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
     
     if (missingVars.length > 0) {
-      return res.status(500).json({
+      res.status(500).json({
         status: 'error',
         message: `Missing environment variables: ${missingVars.join(', ')}`
       });
+      return;
     }
 
     // Check GitHub API connectivity
@@ -36,7 +37,7 @@ app.get('/health', async (_req: Request, res: Response) => {
       githubUser = await githubService.validateToken();
     } catch (error) {
       githubStatus = 'error';
-      logger.error('GitHub API health check failed', error);
+      logger.error('GitHub API health check failed', error as Error);
     }
 
     // Check rate limits
@@ -44,7 +45,7 @@ app.get('/health', async (_req: Request, res: Response) => {
     try {
       rateLimitInfo = await githubService.checkRateLimit();
     } catch (error) {
-      logger.warn('Could not fetch rate limit info', error);
+      logger.warn('Could not fetch rate limit info', error as Record<string, any>);
     }
 
     const responseTime = Date.now() - startTime;
@@ -77,7 +78,7 @@ app.get('/health', async (_req: Request, res: Response) => {
   } catch (error) {
     const responseTime = Date.now() - startTime;
     
-    logger.error('Health check failed', error);
+    logger.error('Health check failed', error as Error);
     
     res.status(500).json({
       status: 'error',

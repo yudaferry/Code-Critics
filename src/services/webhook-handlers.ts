@@ -29,7 +29,7 @@ export async function handlePullRequestEvent(
   logger.info('Processing pull request event', {
     action: payload.action,
     title: pull_request.title,
-    author: pull_request.user.login
+    author: pull_request.user?.login || 'unknown'
   });
 
   try {
@@ -79,7 +79,7 @@ export async function handlePullRequestEvent(
     logger.info('Pull request event processed successfully');
 
   } catch (error) {
-    logger.error('Failed to process pull request event', error);
+    logger.error('Failed to process pull request event', error as Error);
     
     // Post error comment to PR
     await postErrorComment(
@@ -114,7 +114,7 @@ export async function handleIssueCommentEvent(
   });
 
   logger.info('Processing manual review request', {
-    commenter: comment.user.login,
+    commenter: comment.user?.login || 'unknown',
     commentPreview: comment.body.substring(0, 100)
   });
 
@@ -163,7 +163,7 @@ export async function handleIssueCommentEvent(
     logger.info('Manual review request processed successfully');
 
   } catch (error) {
-    logger.error('Failed to process manual review request', error);
+    logger.error('Failed to process manual review request', error as Error);
     
     // Post error comment
     await postErrorComment(
@@ -221,7 +221,7 @@ async function shouldSkipReview(
 
     return !!recentReview;
   } catch (error) {
-    logger.error('Error checking for existing reviews', error);
+    logger.error('Error checking for existing reviews', error as Error);
     return false; // If we can't check, proceed with review
   }
 }
@@ -264,7 +264,7 @@ ${isManualTrigger ? '👋 Manual review requested!' : '🔄 Automatic review tri
     logger.info('Placeholder review comment posted successfully');
 
   } catch (error) {
-    logger.error('Failed to process review', error);
+    logger.error('Failed to process review', error as Error);
     throw error;
   }
 }
@@ -295,7 +295,7 @@ This repository has exceeded the review rate limit. Please try again after ${res
 
     await githubService.postPRComment(owner, repo, pullNumber, comment);
   } catch (error) {
-    logger.error('Failed to post rate limit warning', error);
+    logger.error('Failed to post rate limit warning', error as Error);
   }
 }
 
@@ -339,6 +339,6 @@ Please try again later or trigger a manual review by commenting \`@codecritics\`
 
     await githubService.postPRComment(owner, repo, pullNumber, comment);
   } catch (commentError) {
-    logger.error('Failed to post error comment', commentError);
+    logger.error('Failed to post error comment', commentError as Error);
   }
 }

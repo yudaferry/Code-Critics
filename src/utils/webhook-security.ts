@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { Logger } from './logger';
 import config from './config';
 
@@ -25,7 +25,7 @@ export function verifyWebhookSignature(
   try {
     const expectedSignature = crypto
       .createHmac('sha256', secret)
-      .update(payload, 'utf8')
+      .update(typeof payload === 'string' ? payload : payload.toString('utf8'), 'utf8')
       .digest('hex');
     
     const expectedHeader = `sha256=${expectedSignature}`;
@@ -47,7 +47,7 @@ export function verifyWebhookSignature(
     
     return isValid;
   } catch (error) {
-    logger.error('Error verifying webhook signature', error);
+    logger.error('Error verifying webhook signature', error as Error);
     return false;
   }
 }
