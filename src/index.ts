@@ -16,12 +16,12 @@ app.use(express.json({ limit: '10mb' }));
 // Health check endpoint with service validation
 app.get('/health', async (_req, res) => {
   const startTime = Date.now();
-  
+
   try {
     // Check environment variables
     const requiredEnvVars = ['GITHUB_TOKEN', 'WEBHOOK_SECRET'];
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-    
+
     if (missingVars.length > 0) {
       res.status(500).json({
         status: 'error',
@@ -34,7 +34,7 @@ app.get('/health', async (_req, res) => {
     const githubService = new GitHubService();
     let githubStatus = 'ok';
     let githubUser = null;
-    
+
     try {
       githubUser = await githubService.validateToken();
     } catch (error) {
@@ -51,7 +51,7 @@ app.get('/health', async (_req, res) => {
     }
 
     const responseTime = Date.now() - startTime;
-    
+
     const healthData = {
       status: githubStatus === 'ok' ? 'ok' : 'degraded',
       timestamp: new Date().toISOString(),
@@ -79,9 +79,9 @@ app.get('/health', async (_req, res) => {
     res.status(githubStatus === 'ok' ? 200 : 503).json(healthData);
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    
+
     logger.error('Health check failed', error as Error);
-    
+
     res.status(500).json({
       status: 'error',
       message: 'Health check failed',
@@ -110,37 +110,37 @@ app.post('/api/webhooks', (req: Request, res: Response) => {
   const signature = req.headers['x-hub-signature-256'] as string;
   const event = req.headers['x-github-event'] as string;
   const delivery = req.headers['x-github-delivery'] as string;
-  
-  logger.info('Received webhook', { 
-    event, 
+
+  logger.info('Received webhook', {
+    event,
     delivery,
     headers: req.headers,
-    body: JSON.stringify(req.body).substring(0, 1000) // Log first 1000 chars of body for debugging
+    body: JSON.stringify(req.body).substring(0, 1000)
   });
-  
-  // For testing purposes, accept all signatures
+
   logger.info('Webhook signature verification bypassed for testing');
-  
-  // Process webhook based on event type
+
   switch (event) {
     case 'ping':
-      logger.info('Received ping event', { 
+      logger.info('Received ping event', {
         zen: req.body.zen,
         hook_id: req.body.hook_id,
         repository: req.body.repository?.full_name
       });
-      return res.status(200).json({ message: 'Pong!' });
-      
+      res.status(200).json({ message: 'Pong!' });
+      break;
+
     case 'pull_request':
-      logger.info('Received pull request event', { 
+      logger.info('Received pull request event', {
         action: req.body.action,
         repo: req.body.repository?.full_name,
         pr: req.body.pull_request?.number,
         title: req.body.pull_request?.title,
         author: req.body.pull_request?.user?.login
       });
-      return res.status(202).json({ message: 'Pull request event received' });
-      
+      res.status(202).json({ message: 'Pull request event received' });
+      break;
+
     case 'issue_comment':
       logger.info('Received issue comment event', {
         repo: req.body.repository?.full_name,
@@ -148,18 +148,19 @@ app.post('/api/webhooks', (req: Request, res: Response) => {
         comment: req.body.comment?.body?.substring(0, 100),
         author: req.body.comment?.user?.login
       });
-      return res.status(202).json({ message: 'Issue comment event received' });
-      
+      res.status(202).json({ message: 'Issue comment event received' });
+      break;
+
     default:
       logger.info('Received unsupported event', { event, delivery });
-      return res.status(202).json({ message: `Event type '${event}' is not supported` });
+      res.status(202).json({ message: `Event type '${event}' is not supported` });
   }
 });
 
 // Error handling middleware
 app.use((error: Error, _req: Request, res: Response, _next: any) => {
   logger.error('Unhandled error in Express app', error);
-  
+
   res.status(500).json({
     error: 'Internal Server Error',
     message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
