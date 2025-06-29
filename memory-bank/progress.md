@@ -34,11 +34,12 @@ This document is the single source of truth for the project's phases and overall
 
 ### ⬜️ Phase 4: Code Architecture & Documentation Optimization (Not Started)
 - [ ] 4.1 Resolve webhook endpoint duplication (api/webhooks.ts vs src/index.ts)
-- [ ] 4.2 Restructure directory architecture for better separation of concerns
-- [ ] 4.3 Add comprehensive JSDoc documentation to all functions and classes
-- [ ] 4.4 Implement atomic functional programming patterns
-- [ ] 4.5 Enhance modular code structure with clear dependency injection
-- [ ] 4.6 Optimize code organization (src/ and api/ directory restructuring)
+- [ ] 4.2 Fix "Diff too large" false positive bug for small commits (Issue: commit 056f22a with 3 files incorrectly flagged)
+- [ ] 4.3 Restructure directory architecture for better separation of concerns
+- [ ] 4.4 Add comprehensive JSDoc documentation to all functions and classes
+- [ ] 4.5 Implement atomic functional programming patterns
+- [ ] 4.6 Enhance modular code structure with clear dependency injection
+- [ ] 4.7 Optimize code organization (src/ and api/ directory restructuring)
 
 ### ⬜️ Phase 5: Testing & Deployment (Not Started)
 - [ ] 5.1 Write unit and integration tests for core logic and API interactions
@@ -89,6 +90,7 @@ This document is the single source of truth for the project's phases and overall
 ## Known Issues
 - **Webhook Duplication**: Two webhook implementations exist (api/webhooks.ts and src/index.ts) - needs architectural decision in Phase 4
 - **Directory Structure**: Current src/ organization needs optimization for better separation of concerns
+- **Diff Size Bug**: False positive "Diff too large" warnings for small commits (e.g., commit 056f22a with only 3 files) - diff calculation logic needs debugging
 
 ## Evolution of Decisions
 - **AI-First Approach**: Shifted from traditional static analysis to AI-powered review
