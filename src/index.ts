@@ -106,7 +106,7 @@ app.get('/api/info', (_req: Request, res: Response) => {
 
 // GitHub webhook endpoint - Apply JSON parsing middleware only to this route
 // This optimizes memory usage by not parsing JSON for all requests
-app.post('/api/webhooks', express.json({ limit: '10mb' }), (req: Request, res: Response) => {
+app.post('/api/webhooks', express.json({ limit: '10mb' }), (req: Request, res: Response): void => {
   const signature = req.headers['x-hub-signature-256'] as string;
   const event = req.headers['x-github-event'] as string;
   const delivery = req.headers['x-github-delivery'] as string;
@@ -125,7 +125,8 @@ app.post('/api/webhooks', express.json({ limit: '10mb' }), (req: Request, res: R
   // Verify webhook signature for security
   if (!verifyWebhookSignature(JSON.stringify(req.body), signature, process.env.WEBHOOK_SECRET!)) {
     logger.warn('Invalid webhook signature', { delivery, event });
-    return res.status(401).json({ error: 'Unauthorized: Invalid signature' });
+    res.status(401).json({ error: 'Unauthorized: Invalid signature' });
+    return;
   }
 
   switch (event) {

@@ -3,7 +3,7 @@
  * Configures the testing environment and mocks
  */
 
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 import { config } from '../utils/config';
 
 // Mock environment variables for testing
