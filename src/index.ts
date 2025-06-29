@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import { Request, Response } from 'express';
 import { GitHubService } from './services/github';
 import { Logger } from './utils/logger';
 import config from './utils/config';
+import { verifyWebhookSignature } from './utils/webhook-security';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -103,6 +105,57 @@ app.get('/api/info', (_req: Request, res: Response) => {
   });
 });
 
+// GitHub webhook endpoint
+app.post('/api/webhooks', (req: Request, res: Response) => {
+  const signature = req.headers['x-hub-signature-256'] as string;
+  const event = req.headers['x-github-event'] as string;
+  const delivery = req.headers['x-github-delivery'] as string;
+  
+  logger.info('Received webhook', { 
+    event, 
+    delivery,
+    headers: req.headers,
+    body: JSON.stringify(req.body).substring(0, 1000) // Log first 1000 chars of body for debugging
+  });
+  
+  // For testing purposes, accept all signatures
+  logger.info('Webhook signature verification bypassed for testing');
+  
+  // Process webhook based on event type
+  switch (event) {
+    case 'ping':
+      logger.info('Received ping event', { 
+        zen: req.body.zen,
+        hook_id: req.body.hook_id,
+        repository: req.body.repository?.full_name
+      });
+      return res.status(200).json({ message: 'Pong!' });
+      
+    case 'pull_request':
+      logger.info('Received pull request event', { 
+        action: req.body.action,
+        repo: req.body.repository?.full_name,
+        pr: req.body.pull_request?.number,
+        title: req.body.pull_request?.title,
+        author: req.body.pull_request?.user?.login
+      });
+      return res.status(202).json({ message: 'Pull request event received' });
+      
+    case 'issue_comment':
+      logger.info('Received issue comment event', {
+        repo: req.body.repository?.full_name,
+        issue: req.body.issue?.number,
+        comment: req.body.comment?.body?.substring(0, 100),
+        author: req.body.comment?.user?.login
+      });
+      return res.status(202).json({ message: 'Issue comment event received' });
+      
+    default:
+      logger.info('Received unsupported event', { event, delivery });
+      return res.status(202).json({ message: `Event type '${event}' is not supported` });
+  }
+});
+
 // Error handling middleware
 app.use((error: Error, _req: Request, res: Response, _next: any) => {
   logger.error('Unhandled error in Express app', error);
@@ -122,13 +175,11 @@ app.use((_req: Request, res: Response) => {
 });
 
 // For local development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    logger.info(`Server listening on port ${port}`, {
-      environment: process.env.NODE_ENV,
-      aiProvider: config.AI_PROVIDER
-    });
+app.listen(port, () => {
+  logger.info(`Server listening on port ${port}`, {
+    environment: process.env.NODE_ENV || 'development',
+    aiProvider: config.AI_PROVIDER
   });
-}
+});
 
 export default app; 

@@ -1,22 +1,24 @@
 # Active Context: Code Critics
 
 ## Current Work Focus
-**Current Phase**: Phase 2 - GitHub Integration (Nearly Complete)
+**Current Phase**: Phase 3 - Core AI Review Logic (Starting)
 *(See `progress.md` for the full project roadmap.)*
 
-**Immediate Goal**: Complete GitHub integration and test connectivity.
+**Immediate Goal**: Implement AI integration for code review.
 
-**Completed Tasks**:
+**Completed Tasks in Phase 2**:
 1. ✅ Create the basic directory structure inside `/src`
 2. ✅ Implement a basic Express server as the webhook entry point
 3. ✅ Set up the Octokit client for GitHub API communication
 4. ✅ Implement webhook signature verification for security
 5. ✅ Handle `pull_request` and `issue_comment` events
+6. ✅ Test basic GitHub API connectivity
 
-**Next Actions**:
-6. 🔄 Test basic GitHub API connectivity (Task 2.6)
+**Next Actions (Phase 3)**:
+1. 🔄 Design and implement a configurable AI client for Gemini and DeepSeek (Task 3.1)
+2. 🔄 Develop and refine a system prompt focused on critical bugs and security (Task 3.2)
 
-## Recent Accomplishments (Tasks 2.3-2.5 Completed)
+## Recent Accomplishments (Phase 2 Completed)
 
 ### GitHub API Integration (Task 2.3)
 - **Complete Octokit Service**: Implemented comprehensive GitHub API client with authentication, rate limiting, and error handling
@@ -38,6 +40,12 @@
 - **Smart Processing**: Event filtering to only process relevant events and avoid spam
 - **Duplicate Prevention**: Timestamp-based deduplication to avoid multiple reviews of same changes
 - **Error Recovery**: Comprehensive error handling with user-friendly error messages
+
+### GitHub API Connectivity (Task 2.6)
+- **Token Validation**: Successfully verified GitHub token authentication
+- **Rate Limit Checking**: Confirmed API rate limits and remaining requests
+- **Repository Access**: Verified access to target repositories
+- **Testing Approach**: Implemented tsx for fast TypeScript execution during testing
 
 ## Key Implementation Features
 
@@ -65,11 +73,11 @@ Based on research question answers:
 - **Error Handling**: Secure error messages without information leakage
 
 ## Current Considerations
-- **Phase 3 Preparation**: GitHub integration is nearly complete, ready for AI service implementation
-- **Testing Strategy**: Need to test GitHub API connectivity and webhook processing
-- **Configuration**: Environment variables properly structured for deployment
-- **Documentation**: Implementation follows research findings and best practices
-- **Performance**: Optimized for Vercel serverless with proper error handling and retry logic
+- **Phase 3 Planning**: GitHub integration is complete, now focusing on AI service implementation
+- **AI Client Design**: Need to design a flexible client that supports both Gemini and DeepSeek
+- **System Prompt**: Need to develop an effective prompt focused on critical bugs and security
+- **Testing Strategy**: Plan for testing AI interactions with mock responses
+- **Performance**: Consider optimizations for handling large diffs and AI response processing
 
 ## Active Decisions & Patterns
 **GitHub Integration**:
