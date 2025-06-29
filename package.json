@@ -11,6 +11,7 @@
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "test": "vitest run --coverage",
+    "test:watch": "vitest --watch",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
     "vercel-build": "yarn build"
@@ -28,6 +29,7 @@
     "@eslint/js": "^9.15.0",
     "@types/express": "^5.0.3",
     "@types/node": "18",
+    "@vitest/coverage-v8": "^1.5.0",
     "eslint": "^9.15.0",
     "prettier": "^3.0.0",
     "ts-node": "^10.0.0",
@@ -42,11 +44,17 @@
     "@octokit/rest": "^20.0.0",
     "@octokit/webhooks": "^14.0.2",
     "@vercel/node": "^5.3.0",
-    "axios": "^1.6.0",
     "dotenv": "^16.0.0",
     "express": "^5.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.9.2",
+  "vitest": {
+    "coverage": {
+      "provider": "v8",
+      "reporter": ["text", "json", "html"],
+      "exclude": ["**/node_modules/**", "**/dist/**", "**/tests/**"]
+    }
+  }
 }

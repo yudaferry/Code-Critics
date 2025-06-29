@@ -6,6 +6,11 @@ const logger = new Logger();
 
 /**
  * Verify GitHub webhook signature using HMAC-SHA256
+ * 
+ * @param payload - Webhook payload as string or buffer
+ * @param signature - Signature from X-Hub-Signature-256 header
+ * @param secret - Webhook secret for verification
+ * @returns Boolean indicating if signature is valid
  */
 export function verifyWebhookSignature(
   payload: string | Buffer,
@@ -18,7 +23,12 @@ export function verifyWebhookSignature(
   }
 
   if (!signature.startsWith('sha256=')) {
-    logger.warn('Invalid signature format', { signature: signature.substring(0, 20) });
+    logger.warn('Invalid signature format - signature does not start with sha256=');
+    return false;
+  }
+  
+  if (!secret) {
+    logger.error('Webhook secret is not configured');
     return false;
   }
 
@@ -59,6 +69,7 @@ class RateLimitCache {
   private cache = new Map<string, { count: number; resetTime: number }>();
   private readonly maxRequests: number;
   private readonly windowMs: number;
+  private readonly maxCacheSize: number = 10000; // Prevent memory leaks
 
   constructor(maxRequests: number = 10, windowMs: number = 60 * 60 * 1000) { // 10 requests per hour
     this.maxRequests = maxRequests;
@@ -68,6 +79,11 @@ class RateLimitCache {
   isAllowed(identifier: string): boolean {
     const now = Date.now();
     const entry = this.cache.get(identifier);
+
+    // Check if cache needs cleanup to prevent memory leaks
+    if (this.cache.size >= this.maxCacheSize) {
+      this.cleanup();
+    }
 
     if (!entry || now > entry.resetTime) {
       // First request or window expired
@@ -237,4 +253,62 @@ export function shouldProcessEvent(payload: any): {
     shouldProcess: false,
     reason: 'Event type not supported'
   };
+}
+
+/**
+ * Sanitize webhook payload for safe logging
+ */
+export function sanitizeWebhookPayload(payload: any): any {
+  if (!payload || typeof payload !== 'object') {
+    return {};
+  }
+
+  const sanitized: any = {
+    action: payload.action,
+    repository: payload.repository ? {
+      name: payload.repository.name,
+      full_name: payload.repository.full_name,
+      private: payload.repository.private
+    } : undefined
+  };
+
+  // Sanitize pull request data
+  if (payload.pull_request) {
+    sanitized.pull_request = {
+      number: payload.pull_request.number,
+      title: payload.pull_request.title?.substring(0, 100),
+      state: payload.pull_request.state,
+      author: payload.pull_request.user?.login
+    };
+  }
+
+  // Sanitize comment data
+  if (payload.comment) {
+    sanitized.comment = {
+      author: payload.comment.user?.login,
+      body_preview: payload.comment.body?.substring(0, 100)
+    };
+  }
+
+  return sanitized;
+}
+
+/**
+ * Sanitize HTTP headers for safe logging
+ */
+export function sanitizeHeaders(headers: any): any {
+  const sensitiveHeaders = ['authorization', 'x-hub-signature', 'x-hub-signature-256'];
+  const sanitized: any = {};
+
+  for (const [key, value] of Object.entries(headers)) {
+    if (sensitiveHeaders.includes(key.toLowerCase())) {
+      sanitized[key] = '[REDACTED]';
+    } else if (key.startsWith('x-github-')) {
+      sanitized[key] = value;
+    } else if (['user-agent', 'content-type', 'content-length'].includes(key.toLowerCase())) {
+      sanitized[key] = value;
+    }
+  }
+
+  return sanitized;
 }

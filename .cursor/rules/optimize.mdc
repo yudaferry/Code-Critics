@@ -1,0 +1,157 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Code Optimization & Review Rule
+## Version: 3.0
+**Last Updated:** 2025-06-30
+
+## Purpose
+Enforce rigorous code review and optimization across all code changes to achieve 100% code quality through automated validation, bug detection, security analysis, and performance optimization.
+
+## When to Apply
+- **Automatic**: Applied to all code changes and commits
+- **Manual**: Explicitly invoked for targeted reviews
+- **Universal**: Works across all project phases and tasks
+
+## Code Review Process
+
+```mermaid
+flowchart TD
+    A[Code Input] --> B[Multi-Layer Analysis]
+    
+    subgraph B [Multi-Layer Analysis]
+        C[Syntax & Type Validation]
+        D[Security Vulnerability Scan]
+        E[Performance Analysis]
+        F[Code Quality Assessment]
+    end
+    
+    B --> G[Issue Classification]
+    G --> H[Generate Prioritized Report]
+    H --> I[Propose Optimizations]
+    I --> J[Validate Fixes]
+    J --> K[Quality Score: X/100]
+```
+
+## Core Review Directives
+
+### 1. Code Validation & Quality
+Ensure adherence to established technical standards and best practices:
+
+*   **General**: Meaningful naming, Single Responsibility Principle (SRP), DRY, concise comments (explaining *why*), logical structure.
+*   **TypeScript**: Strict type safety (`strict: true`), precise typing (avoid `any`), `interface` for shapes, explicit return types, standard naming conventions (`PascalCase` for types, `camelCase` for variables), organized types (global in `/src/types`).
+*   **Node.js/Express**: `async/await` with proper handling, centralized error management, environment variable configuration, webhook signature verification, RESTful API design, efficient memory usage.
+*   **Code Critics Specific**: Adherence to AI client patterns (abstract base, fallbacks), HMAC-SHA256 webhook security, structured comment formatting, environment-based config validation, structured logging.
+
+### 2. Bug & Security Vulnerability Analysis
+Identify and mitigate critical issues:
+
+*   **Bugs**: Logic errors, race conditions, null/undefined dereferences, missing/improper error handling, unaddressed edge cases.
+*   **Security**: Strict HMAC-SHA256 verification, secure API key management (no hardcoding), robust input validation (payloads, diff size, file types), rate limiting, sensitive data sanitization (logs, error messages), dependency vulnerability checks, proper GitHub token scopes, AI response sanitization.
+
+### 3. Performance & Maintainability Optimization
+Propose enhancements across all code aspects:
+
+*   **Performance**: Minimize bundle size, optimize cold start, efficient resource utilization.
+*   **Memory**: Identify and suggest improvements for memory-intensive operations.
+*   **Maintainability**: Refactor for clarity, reduced complexity, improved readability.
+*   **Testability**: Suggest improvements for unit and integration testing.
+*   **Scalability**: Identify bottlenecks and propose scalable solutions.
+
+## Output & Implementation Guidelines
+
+### Review Report Format
+```markdown
+## Code Quality & Optimization Report
+**Files Analyzed**: [List of files reviewed]
+
+### CRITICAL ISSUES (Immediate Action Required)
+- **[SEVERITY: Critical]** `file:line` - Description and proposed fix.
+- **[SECURITY: Critical]** `file:line` - Security vulnerability and mitigation strategy.
+
+### HIGH PRIORITY ISSUES
+- **[SEVERITY: High]** `file:line` - Description and suggested fix.
+- **[SECURITY: High]** `file:line` - Security concern and mitigation.
+
+### OPTIMIZATION OPPORTUNITIES
+- **[PERFORMANCE]** `file:line` - Performance improvement.
+- **[MEMORY]** `file:line` - Memory optimization.
+- **[BUNDLE]** `file:line` - Bundle size reduction.
+
+### CODE QUALITY IMPROVEMENTS
+- **[MAINTAINABILITY]** `file:line` - Code structure improvement.
+- **[TESTABILITY]** `file:line` - Testing enhancement.
+- **[DOCUMENTATION]** `file:line` - Documentation improvement.
+
+### QUALITY SCORE: [X/100]
+**Path to 100%**: [Specific, actionable steps to achieve 100% quality.]
+```
+
+### Implementation Approach
+*   **Specificity**: Provide exact file locations and actionable fixes.
+*   **Code Examples**: Include snippets for complex changes.
+*   **Priority**: Address Critical security/bugs first, then high priority, then optimization/quality.
+*   **Compatibility**: Ensure no proposed changes break existing functionality.
+
+### Quality Standards
+*   **100% Target**: Always aim for 100% code quality.
+*   **Zero Tolerance**: No critical security issues or bugs in production code.
+*   **Performance**: Optimized for serverless environments.
+*   **Test Coverage**: Critical paths must be testable.
+*   **Maintainability**: Clear, well-structured, extensible code.
+
+## Usage Examples
+
+### Basic Optimization
+```bash
+# Full codebase review and optimization
+optimize the code with @optimize.mdc rule
+```
+
+### Targeted Reviews
+```bash
+# Specific files
+optimize the code with @optimize.mdc rule for src/services/github.ts
+
+# Multiple files  
+optimize the code with @optimize.mdc rule for src/services/*.ts, api/webhooks.ts
+
+# Recent changes only
+optimize the code with @optimize.mdc rule for recent changes
+```
+
+### Focus Areas
+```bash
+# Security-focused review
+optimize the code with @optimize.mdc rule focusing on security vulnerabilities
+
+# Performance optimization
+optimize the code with @optimize.mdc rule focusing on performance issues
+
+# Bug detection
+optimize the code with @optimize.mdc rule focusing on potential bugs
+
+# Code quality improvements
+optimize the code with @optimize.mdc rule focusing on maintainability
+```
+
+### Integration Scenarios
+```bash
+# Pre-commit optimization
+optimize the code with @optimize.mdc rule before commit
+
+# Feature completion review
+optimize the code with @optimize.mdc rule for feature/user-auth branch
+
+# Production readiness check
+optimize the code with @optimize.mdc rule for production deployment
+```
+
+## Success Metrics
+*   **Code Quality**: Achieved 100% quality score.
+*   **Security**: Zero critical vulnerabilities identified and mitigated.
+*   **Performance**: Code is optimized for serverless deployment.
+*   **Testability**: Critical paths are easily testable.
+*   **Maintainability**: Code is clear, well-structured, and extensible.

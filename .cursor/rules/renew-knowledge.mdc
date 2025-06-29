@@ -1,6 +1,6 @@
 ---
-description: Protocol for comprehensive knowledge renewal at session end or on explicit request.
-globs: ["memory-bank/**/*", "src/**/*", "package.json", "tsconfig.json", "vercel.json"]
+description: 
+globs: 
 alwaysApply: false
 ---
 # Renew Knowledge Protocol

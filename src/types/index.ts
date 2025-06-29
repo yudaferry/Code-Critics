@@ -90,3 +90,19 @@ export interface LogContext {
   duration?: number;
   [key: string]: any;
 }
+
+export interface GitHubCheckRun {
+  owner: string;
+  repo: string;
+  head_sha: string;
+  name: string;
+  status: 'queued' | 'in_progress' | 'completed';
+  conclusion?: 'success' | 'failure' | 'neutral' | 'cancelled' | 'skipped' | 'timed_out' | 'action_required';
+  output?: {
+    title: string;
+    summary: string;
+    text?: string;
+  };
+}
+
+export type ReviewStatus = 'pending' | 'success' | 'failure' | 'error';

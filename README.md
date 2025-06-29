@@ -11,7 +11,7 @@ A GitHub code review app built with Node.js and TypeScript for automated code an
 
 2. **Set up environment**
    ```bash
-   cp env.example .env
+   cp .env.example .env
    # Edit .env with your GitHub Personal Access Token and AI API keys
    ```
 
@@ -23,9 +23,26 @@ A GitHub code review app built with Node.js and TypeScript for automated code an
 
 ## 📋 Development Status
 
-This project is currently in **Phase 2: GitHub Integration (Ready to Start)**
+This project is currently in **Phase 3: Core AI Review Logic (Complete)**
 
 Check `memory-bank/progress.md` for detailed progress tracking.
+
+## 🧠 AI Configuration
+
+Code Critics supports multiple AI providers:
+
+- **Gemini** (Default): Google's Gemini Pro model
+- **DeepSeek**: DeepSeek Coder model as a fallback option
+
+Configure your preferred provider in `.env`:
+
+```
+AI_PROVIDER=gemini  # Options: gemini, deepseek
+GEMINI_API_KEY=your_gemini_api_key
+DEEPSEEK_API_KEY=your_deepseek_api_key
+```
+
+The system will automatically fall back to the secondary provider if the primary one fails.
 
 ## 🛠️ Tech Stack
 

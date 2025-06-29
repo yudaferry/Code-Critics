@@ -2,16 +2,16 @@ import 'dotenv/config';
 import express from 'express';
 import { Request, Response } from 'express';
 import { GitHubService } from './services/github';
+import { CodeReviewService } from './services/code-reviewer';
 import { Logger } from './utils/logger';
 import config from './utils/config';
-import { verifyWebhookSignature } from './utils/webhook-security';
+import { verifyWebhookSignature, sanitizeWebhookPayload, sanitizeHeaders } from './utils/webhook-security';
 
 const app = express();
 const port = process.env.PORT || 3000;
+const githubService = new GitHubService();
+const codeReviewService = new CodeReviewService();
 const logger = new Logger();
-
-// Middleware for JSON parsing with larger payload limit
-app.use(express.json({ limit: '10mb' }));
 
 // Health check endpoint with service validation
 app.get('/health', async (_req, res) => {
@@ -31,7 +31,6 @@ app.get('/health', async (_req, res) => {
     }
 
     // Check GitHub API connectivity
-    const githubService = new GitHubService();
     let githubStatus = 'ok';
     let githubUser = null;
 
@@ -105,20 +104,29 @@ app.get('/api/info', (_req: Request, res: Response) => {
   });
 });
 
-// GitHub webhook endpoint
-app.post('/api/webhooks', (req: Request, res: Response) => {
+// GitHub webhook endpoint - Apply JSON parsing middleware only to this route
+// This optimizes memory usage by not parsing JSON for all requests
+app.post('/api/webhooks', express.json({ limit: '10mb' }), (req: Request, res: Response) => {
   const signature = req.headers['x-hub-signature-256'] as string;
   const event = req.headers['x-github-event'] as string;
   const delivery = req.headers['x-github-delivery'] as string;
 
-  logger.info('Received webhook', {
-    event,
-    delivery,
-    headers: req.headers,
-    body: JSON.stringify(req.body).substring(0, 1000)
+  // Asynchronously log webhook data to avoid blocking
+  setImmediate(() => {
+    const sanitizedBody = sanitizeWebhookPayload(req.body);
+    logger.info('Received webhook', {
+      event,
+      delivery,
+      headers: sanitizeHeaders(req.headers),
+      body: JSON.stringify(sanitizedBody).substring(0, 500)
+    });
   });
 
-  logger.info('Webhook signature verification bypassed for testing');
+  // Verify webhook signature for security
+  if (!verifyWebhookSignature(JSON.stringify(req.body), signature, process.env.WEBHOOK_SECRET!)) {
+    logger.warn('Invalid webhook signature', { delivery, event });
+    return res.status(401).json({ error: 'Unauthorized: Invalid signature' });
+  }
 
   switch (event) {
     case 'ping':
@@ -138,7 +146,25 @@ app.post('/api/webhooks', (req: Request, res: Response) => {
         title: req.body.pull_request?.title,
         author: req.body.pull_request?.user?.login
       });
-      res.status(202).json({ message: 'Pull request event received' });
+
+      const pullRequest = req.body.pull_request;
+      const action = req.body.action;
+
+      if (action === 'opened' || action === 'reopened' || action === 'synchronize') {
+        // 'synchronize' event occurs when new commits are pushed to the PR branch
+        const owner = pullRequest.base.repo.owner.login;
+        const repo = pullRequest.base.repo.name;
+        const pullNumber = pullRequest.number;
+
+        // Asynchronously conduct the review to not block the webhook response
+        codeReviewService.conductReview(owner, repo, pullNumber).catch(error => {
+          logger.error('Error conducting code review', error as Error, { owner, repo, pullNumber });
+        });
+
+        res.status(202).json({ message: 'Pull request event received, review initiated' });
+      } else {
+        res.status(202).json({ message: `Pull request event action '${action}' not handled` });
+      }
       break;
 
     case 'issue_comment':
@@ -148,7 +174,38 @@ app.post('/api/webhooks', (req: Request, res: Response) => {
         comment: req.body.comment?.body?.substring(0, 100),
         author: req.body.comment?.user?.login
       });
-      res.status(202).json({ message: 'Issue comment event received' });
+      
+      // Check if this is a comment on a PR and mentions @codecritics
+      const issue = req.body.issue;
+      const comment = req.body.comment;
+      
+      if (issue && issue.pull_request && comment && comment.body && 
+          comment.body.toLowerCase().includes('@codecritics')) {
+        
+        logger.info('Manual code review requested via comment', {
+          repo: req.body.repository.full_name,
+          pr: issue.number,
+          commenter: comment.user.login
+        });
+        
+        const owner = req.body.repository.owner.login;
+        const repo = req.body.repository.name;
+        const pullNumber = issue.number;
+        
+        // Asynchronously conduct the review to not block the webhook response
+        codeReviewService.conductReview(owner, repo, pullNumber).catch(error => {
+          logger.error('Error conducting manual code review', error as Error, { 
+            owner, 
+            repo, 
+            pullNumber,
+            commenter: comment.user.login
+          });
+        });
+        
+        res.status(202).json({ message: 'Manual code review requested, review initiated' });
+      } else {
+        res.status(202).json({ message: 'Issue comment event received, no action taken' });
+      }
       break;
 
     default:

@@ -1,5 +1,7 @@
 // Environment configuration with validation
 
+import { SUPPORTED_FILE_EXTENSIONS } from './constants';
+
 interface Config {
   GITHUB_TOKEN: string;
   WEBHOOK_SECRET: string;
@@ -10,6 +12,7 @@ interface Config {
   LOG_LEVEL: 'debug' | 'info' | 'warn' | 'error';
   NODE_ENV: 'development' | 'production' | 'test';
   ALLOWED_REPOSITORIES?: string;
+  ALLOWED_FILE_EXTENSIONS: string[];
 }
 
 function validateConfig(): Config {
@@ -40,7 +43,8 @@ function validateConfig(): Config {
     MAX_DIFF_SIZE: parseInt(process.env.MAX_DIFF_SIZE || '100000'),
     LOG_LEVEL: (process.env.LOG_LEVEL || 'info') as Config['LOG_LEVEL'],
     NODE_ENV: (process.env.NODE_ENV || 'development') as Config['NODE_ENV'],
-    ALLOWED_REPOSITORIES: process.env.ALLOWED_REPOSITORIES
+    ALLOWED_REPOSITORIES: process.env.ALLOWED_REPOSITORIES,
+    ALLOWED_FILE_EXTENSIONS: process.env.ALLOWED_FILE_EXTENSIONS?.split(',') || [...SUPPORTED_FILE_EXTENSIONS]
   };
 }
 
