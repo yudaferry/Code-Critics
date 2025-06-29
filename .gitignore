@@ -12,6 +12,11 @@ build/
 .env.production
 .env.staging
 
+# Test files
+test-*.json
+test-*.ts
+test-*.js
+
 # Logs
 logs
 *.log

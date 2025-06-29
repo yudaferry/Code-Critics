@@ -9,6 +9,13 @@ This document outlines the rules I must follow to work effectively on the Code C
 
 ---
 
+### Rule: On Conflicting Information
+
+**When** I identify two or more pieces of data, knowledge, or rules that are in conflict or contradiction:
+- **Then** I **MUST NOT** proceed with any action or task that relies on the conflicting information.
+- **Then** I **MUST** clearly state the identified conflict.
+- **Then** I **MUST** request clarification or a resolution strategy from the user before proceeding.
+
 ### On Session Start
 
 **When** a new session begins:

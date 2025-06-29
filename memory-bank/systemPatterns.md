@@ -35,6 +35,16 @@ graph TD
 - **Pattern**: Singleton / Module
 - **Responsibility**: To load and provide access to configuration settings, such as GitHub tokens, AI API keys, and review rules. It will load settings from environment variables and per-repository configuration files.
 
+### Diff Processor
+- **Pattern**: Utility
+- **Responsibility**: Efficiently process large diffs by implementing streaming processing and chunking.
+- **Key Functions**: Filtering diffs by file extensions, processing diffs in chunks to reduce memory usage.
+
+### AI Response Parser
+- **Pattern**: Utility
+- **Responsibility**: Parse AI responses into structured review comments.
+- **Key Functions**: Extract location, issue type, description, severity, and suggested changes from AI responses.
+
 ## 3. Data Flow
 1. A pull request is created/updated OR a user comments `@codecritics` on a PR.
 2. GitHub sends a `pull_request` or `issue_comment` event to the registered webhook URL.
@@ -54,11 +64,26 @@ src/
 ├── services/              # Business logic services
 │   ├── github.ts          # GitHub API client
 │   ├── ai/                # AI integration
-│   │   ├── gemini.ts      # Gemini client
-│   │   └── deepseek.ts    # DeepSeek client
-│   └── review.ts          # Review orchestration
+│   │   ├── ai-client.ts   # Abstract AI client
+│   │   ├── gemini-client.ts # Gemini implementation
+│   │   └── deepseek-client.ts # DeepSeek implementation
+│   ├── code-reviewer.ts   # Review orchestration
+│   └── webhook-handlers.ts # Webhook event handlers
 ├── types/                 # Shared TypeScript types
+│   ├── index.ts           # Core types
+│   └── ai.ts              # AI-specific types
 ├── utils/                 # Utility functions
+│   ├── logger.ts          # Winston logger with rotation
+│   ├── config.ts          # Configuration management
+│   ├── webhook-security.ts # Security utilities
+│   ├── ai-prompts.ts      # AI system prompts
+│   ├── ai-response-parser.ts # AI response parsing utility
+│   └── diff-processor.ts  # Diff processing utility
+├── tests/                 # Test files
+│   ├── setup.ts           # Test setup and mocks
+│   ├── github.test.ts     # GitHub service tests
+│   ├── ai-response-parser.test.ts # Parser tests
+│   └── diff-processor.test.ts # Diff processor tests
 └── index.ts              # Application entry point
 ```
 
