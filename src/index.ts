@@ -1,19 +1,50 @@
+/**
+ * @fileoverview Main Express server for Code Critics GitHub webhook handler
+ * 
+ * This file sets up the Express server that handles GitHub webhooks for
+ * automated code review using AI services (Gemini/DeepSeek). It provides
+ * endpoints for health checks, webhook processing, and API information.
+ * 
+ * @author Code Critics Team
+ * @version 1.0.0
+ */
+
 import 'dotenv/config';
 import express from 'express';
 import { Request, Response } from 'express';
-import { GitHubService } from './services/github';
-import { CodeReviewService } from './services/code-reviewer';
-import { Logger } from './utils/logger';
+import { container } from './core/container';
 import config from './utils/config';
 import { verifyWebhookSignature, sanitizeWebhookPayload, sanitizeHeaders } from './utils/webhook-security';
 
+/**
+ * Express application instance
+ */
 const app = express();
-const port = process.env.PORT || 3000;
-const githubService = new GitHubService();
-const codeReviewService = new CodeReviewService();
-const logger = new Logger();
 
-// Health check endpoint with service validation
+/**
+ * Server port configuration
+ */
+const port = process.env.PORT || 3000;
+
+/**
+ * Service instances from dependency injection container
+ */
+const githubService = container.getGitHubService();
+const codeReviewService = container.getCodeReviewService();
+const logger = container.getLogger();
+
+/**
+ * Health check endpoint with comprehensive service validation
+ * 
+ * Performs validation of:
+ * - Environment variables
+ * - GitHub API connectivity
+ * - Rate limit status
+ * - Service configuration
+ * 
+ * @route GET /health
+ * @returns {Object} Health status with service details
+ */
 app.get('/health', async (_req, res) => {
   const startTime = Date.now();
 
@@ -90,7 +121,15 @@ app.get('/health', async (_req, res) => {
   }
 });
 
-// API info endpoint
+/**
+ * API information endpoint
+ * 
+ * Provides basic information about the Code Critics API including
+ * available endpoints and documentation links.
+ * 
+ * @route GET /api/info
+ * @returns {Object} API information and available endpoints
+ */
 app.get('/api/info', (_req: Request, res: Response) => {
   res.json({
     name: 'Code Critics',
@@ -104,8 +143,26 @@ app.get('/api/info', (_req: Request, res: Response) => {
   });
 });
 
-// GitHub webhook endpoint - Apply JSON parsing middleware only to this route
-// This optimizes memory usage by not parsing JSON for all requests
+/**
+ * GitHub webhook endpoint for processing pull request and issue comment events
+ * 
+ * This endpoint handles GitHub webhooks for:
+ * - Pull request events (opened, reopened, synchronize)
+ * - Issue comment events (manual review requests via @codecritics)
+ * 
+ * Security features:
+ * - Webhook signature verification
+ * - Payload sanitization
+ * - Rate limiting
+ * - Asynchronous processing
+ * 
+ * @route POST /api/webhooks
+ * @param {Object} req.body - GitHub webhook payload
+ * @param {string} req.headers.x-hub-signature-256 - Webhook signature
+ * @param {string} req.headers.x-github-event - Event type
+ * @param {string} req.headers.x-github-delivery - Delivery ID
+ * @returns {Object} Processing status
+ */
 app.post('/api/webhooks', express.json({ limit: '10mb' }), (req: Request, res: Response): void => {
   const signature = req.headers['x-hub-signature-256'] as string;
   const event = req.headers['x-github-event'] as string;
@@ -175,34 +232,34 @@ app.post('/api/webhooks', express.json({ limit: '10mb' }), (req: Request, res: R
         comment: req.body.comment?.body?.substring(0, 100),
         author: req.body.comment?.user?.login
       });
-      
+
       // Check if this is a comment on a PR and mentions @codecritics
       const issue = req.body.issue;
       const comment = req.body.comment;
-      
-      if (issue && issue.pull_request && comment && comment.body && 
-          comment.body.toLowerCase().includes('@codecritics')) {
-        
+
+      if (issue && issue.pull_request && comment && comment.body &&
+        comment.body.toLowerCase().includes('@codecritics')) {
+
         logger.info('Manual code review requested via comment', {
           repo: req.body.repository.full_name,
           pr: issue.number,
           commenter: comment.user.login
         });
-        
+
         const owner = req.body.repository.owner.login;
         const repo = req.body.repository.name;
         const pullNumber = issue.number;
-        
+
         // Asynchronously conduct the review to not block the webhook response
         codeReviewService.conductReview(owner, repo, pullNumber).catch(error => {
-          logger.error('Error conducting manual code review', error as Error, { 
-            owner, 
-            repo, 
+          logger.error('Error conducting manual code review', error as Error, {
+            owner,
+            repo,
             pullNumber,
             commenter: comment.user.login
           });
         });
-        
+
         res.status(202).json({ message: 'Manual code review requested, review initiated' });
       } else {
         res.status(202).json({ message: 'Issue comment event received, no action taken' });
@@ -215,7 +272,17 @@ app.post('/api/webhooks', express.json({ limit: '10mb' }), (req: Request, res: R
   }
 });
 
-// Error handling middleware
+/**
+ * Global error handling middleware
+ * 
+ * Catches and handles any unhandled errors in the Express application.
+ * Provides different error details based on the environment.
+ * 
+ * @param {Error} error - The error that occurred
+ * @param {Request} _req - Express request object (unused)
+ * @param {Response} res - Express response object
+ * @param {Function} _next - Express next function (unused)
+ */
 app.use((error: Error, _req: Request, res: Response, _next: any) => {
   logger.error('Unhandled error in Express app', error);
 
@@ -225,7 +292,14 @@ app.use((error: Error, _req: Request, res: Response, _next: any) => {
   });
 });
 
-// 404 handler
+/**
+ * 404 handler for unmatched routes
+ * 
+ * Handles requests to non-existent endpoints with a proper 404 response.
+ * 
+ * @param {Request} _req - Express request object (unused)
+ * @param {Response} res - Express response object
+ */
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     error: 'Not Found',
@@ -233,7 +307,12 @@ app.use((_req: Request, res: Response) => {
   });
 });
 
-// For local development
+/**
+ * Start the server for local development
+ * 
+ * Only starts the server when not in a serverless environment.
+ * Logs startup information including configuration details.
+ */
 app.listen(port, () => {
   logger.info(`Server listening on port ${port}`, {
     environment: process.env.NODE_ENV || 'development',
@@ -241,4 +320,7 @@ app.listen(port, () => {
   });
 });
 
+/**
+ * Export the Express app for serverless deployment
+ */
 export default app; 

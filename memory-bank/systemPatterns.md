@@ -3,6 +3,8 @@
 ## 1. High-Level Architecture
 The system follows a webhook-driven, event-based architecture. It is a stateless service that reacts to events from GitHub, processes them, and sends results back to the GitHub API.
 
+For a detailed architectural overview, including component breakdowns, data flow, security features, and deployment strategies, please refer to the [architecture.md](mdc:memory-bank/architecture.md) document.
+
 ```mermaid
 graph TD
     A[GitHub Pull Request] -- Webhook Event --> B(Webhook Server);
@@ -15,6 +17,7 @@ graph TD
 ```
 
 ## 2. Component Breakdown
+For detailed information on each component, their patterns, responsibilities, and key functions, please refer to the [architecture.md](mdc:memory-bank/architecture.md) document.
 
 ### Webhook Server
 - **Pattern**: Serverless Function (Vercel)
@@ -46,6 +49,8 @@ graph TD
 - **Key Functions**: Extract location, issue type, description, severity, and suggested changes from AI responses.
 
 ## 3. Data Flow
+For a detailed explanation of the data flow within the system, please refer to the [architecture.md](mdc:memory-bank/architecture.md) document.
+
 1. A pull request is created/updated OR a user comments `@codecritics` on a PR.
 2. GitHub sends a `pull_request` or `issue_comment` event to the registered webhook URL.
 3. The **Webhook Server** receives the event, verifies its signature, and passes the payload to the **AI Code Analyzer**.
@@ -56,6 +61,8 @@ graph TD
 8. The **Review Engine** takes the parsed feedback and posts it as both inline comments and PR-level summary comments on the GitHub pull request.
 
 ## 5. Project Structure
+For the most up-to-date and detailed project directory structure, please refer to the [architecture.md](mdc:memory-bank/architecture.md) document.
+
 ```
 src/
 ├── api/                    # API routes organized by domain

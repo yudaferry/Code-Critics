@@ -63,12 +63,15 @@
 - **Coverage Configuration**: Added coverage configuration to package.json
 
 ## 7. Deployment Configuration
+For detailed information on deployment configuration, including platform, environment, cold start optimization, and security considerations, please refer to the [architecture.md](mdc:memory-bank/architecture.md) document.
+
 - **Platform**: Vercel serverless functions
 - **Environment**: Production secrets managed via Vercel environment variables
 - **Local Development**: Uses Cloudflare Tunnel for webhook testing
 - **Cold Start**: 1-3 second delays acceptable for personal use case
 
 ## 8. Development Tools
+For a comprehensive overview of custom development tools and their usage, please refer to the [development-tools.md](mdc:memory-bank/development-tools.md) document. This includes details on the Vercel deployment tool and its benefits for AI development and debugging.
 
 ### Custom Vercel Tool
 - **Location**: `AI-tools/vercel.tool.sh`
@@ -117,6 +120,7 @@ curl "$PROD_URL/health"
 - Reload the editor after running the command to apply changes.
 
 ## 10. Technology Workflow Diagram
+For a detailed technology workflow diagram and explanation of technology positioning, please refer to the [architecture.md](mdc:memory-bank/architecture.md) document.
 
 ```mermaid
 graph TD

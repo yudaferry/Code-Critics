@@ -87,31 +87,36 @@ export class CodeReviewService {
     pullNumber: number,
     prData: PullRequestData,
     combinedDiff: string
-  ): Promise<boolean> {
+  ): Promise<{ shouldSkip: boolean; filteredDiff: string; }> {
     let finalDiff = combinedDiff;
 
+    // First check if the diff is actually large before doing any filtering
     if (finalDiff.length > config.MAX_DIFF_SIZE) {
       this.logger.warn('Diff is very large, applying file type filtering', {
         diffSize: finalDiff.length,
         pullNumber,
+        maxDiffSize: config.MAX_DIFF_SIZE
       });
 
+      // Apply file type filtering to the diff content
       finalDiff = this.diffProcessor.filterDiffByExtensions(
         finalDiff,
         config.ALLOWED_FILE_EXTENSIONS
       );
 
       this.logger.info('Filtered diff by file extensions', {
-        originalSize: prData.diff.length,
+        originalSize: combinedDiff.length,
         filteredSize: finalDiff.length,
+        maxDiffSize: config.MAX_DIFF_SIZE
       });
 
+      // If no supported files remain after filtering
       if (finalDiff.length === 0) {
         await this.githubService.postPRComment(
           owner,
           repo,
           pullNumber,
-          `## 🤖 Code Critics AI Review\n\n⚠️ **Review skipped: Diff too large**\n\nThis pull request is too large to review automatically. The diff exceeds our processing limit, and no supported code files were found after filtering.\n\nConsider breaking this PR into smaller, more focused changes.\n\n---\n*Powered by Code Critics AI*\n<!-- code-critics-review -->\n<!-- timestamp: ${Date.now()} -->`
+          `## 🤖 Code Critics AI Review\n\n⚠️ **Review skipped: No supported files**\n\nThis pull request contains no supported file types for automated review. We currently support: ${config.ALLOWED_FILE_EXTENSIONS.join(', ')}\n\n---\n*Powered by Code Critics AI*\n<!-- code-critics-review -->\n<!-- timestamp: ${Date.now()} -->`
         );
 
         await this.githubService.setCommitStatus(
@@ -119,17 +124,18 @@ export class CodeReviewService {
           repo,
           pullNumber,
           'success',
-          'Review skipped: Diff too large and no supported files found.'
+          'Review skipped: No supported files found.'
         );
-        return true; // Indicate that review was skipped
+        return { shouldSkip: true, filteredDiff: finalDiff }; // Indicate that review was skipped
       }
 
+      // If filtered diff is still too large, skip review
       if (finalDiff.length > config.MAX_DIFF_SIZE * DIFF_PROCESSING.LARGE_DIFF_MULTIPLIER) {
         await this.githubService.postPRComment(
           owner,
           repo,
           pullNumber,
-          `## 🤖 Code Critics AI Review\n\n⚠️ **Review skipped: Diff too large**\n\nEven after filtering to only include supported file types, this pull request is too large to review automatically.\n\nConsider breaking this PR into smaller, more focused changes.\n\n---\n*Powered by Code Critics AI*\n<!-- code-critics-review -->\n<!-- timestamp: ${Date.now()} -->`
+          `## 🤖 Code Critics AI Review\n\n⚠️ **Review skipped: Diff too large**\n\nEven after filtering to only include supported file types, this pull request is too large to review automatically (${finalDiff.length} characters > ${config.MAX_DIFF_SIZE * DIFF_PROCESSING.LARGE_DIFF_MULTIPLIER} limit).\n\nConsider breaking this PR into smaller, more focused changes.\n\n---\n*Powered by Code Critics AI*\n<!-- code-critics-review -->\n<!-- timestamp: ${Date.now()} -->`
         );
 
         await this.githubService.setCommitStatus(
@@ -139,10 +145,11 @@ export class CodeReviewService {
           'success',
           'Review skipped: Filtered diff still too large.'
         );
-        return true; // Indicate that review was skipped
+        return { shouldSkip: true, filteredDiff: finalDiff }; // Indicate that review was skipped
       }
     }
-    return false; // Indicate that review was not skipped
+
+    return { shouldSkip: false, filteredDiff: finalDiff }; // Return the filtered diff for use
   }
 
   /**
@@ -164,19 +171,19 @@ export class CodeReviewService {
     if (sanitized.toLowerCase().includes('api key') || sanitized.toLowerCase().includes('auth')) {
       return 'Authentication configuration issue detected.';
     }
-    
+
     if (sanitized.toLowerCase().includes('network') || sanitized.toLowerCase().includes('fetch')) {
       return 'Network connectivity issue encountered.';
     }
-    
+
     if (sanitized.toLowerCase().includes('timeout')) {
       return 'Request timeout - the review took too long to complete.';
     }
-    
+
     if (sanitized.toLowerCase().includes('rate limit')) {
       return 'Rate limit exceeded - please try again later.';
     }
-    
+
     // For other errors, provide a generic message
     return 'An unexpected error occurred during the review process.';
   }
@@ -200,18 +207,23 @@ export class CodeReviewService {
       let combinedDiff = prData.diff;
 
       // Handle large diffs and check if review should be skipped
-      if (await this._handleLargeDiff(owner, repo, pullNumber, prData, combinedDiff)) {
+      // This method will return the filtered diff if filtering was applied
+      const { shouldSkip, filteredDiff } = await this._handleLargeDiff(owner, repo, pullNumber, prData, combinedDiff);
+      if (shouldSkip) {
         return; // Review was skipped, exit early
       }
+
+      // Use the filtered diff for AI review
+      const finalDiff = filteredDiff;
 
       const messages: AIChatMessage[] = [
         { role: 'user', content: systemPrompt },
         {
-          role: 'user', content: `Please review the following pull request diff:\n\`\`\`diff\n${combinedDiff}\n\`\`\`\n\nProvide your feedback in the specified format.`
+          role: 'user', content: `Please review the following pull request diff:\n\`\`\`diff\n${finalDiff}\n\`\`\`\n\nProvide your feedback in the specified format.`
         },
       ];
 
-      this.logger.info('Sending diff to AI for review...', { pr: pullNumber, diffSize: combinedDiff.length });
+      this.logger.info('Sending diff to AI for review...', { pr: pullNumber, diffSize: finalDiff.length });
       const aiResponse = await this.aiClient.generateCompletion(messages);
       this.logger.info('AI review completed.', { pr: pullNumber });
 
@@ -247,10 +259,10 @@ export class CodeReviewService {
 
     } catch (error) {
       this.logger.error('Error during code review', error as Error, { owner, repo, pullNumber });
-      
+
       // Sanitize error message for public display
       const publicErrorMessage = this.sanitizeErrorForPublic((error as Error).message);
-      
+
       await this.githubService.postPRComment(
         owner,
         repo,
